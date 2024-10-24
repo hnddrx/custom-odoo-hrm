@@ -14,12 +14,14 @@
         'web',
         'mail', 
         'advanced_employee_manager',
-        'advanced_movement'
+        'custom_approval_flow',
         ],
     'data': [
         'security/ir.model.access.csv',
         'views/certificate_of_employment.xml',
+        'views/approval_flow.xml',
         'data/certificate_of_employment.xml',
+        
     ], 
     """ "assets":{
         "web.assets_backend":[
