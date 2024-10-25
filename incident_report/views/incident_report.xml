@@ -1,0 +1,99 @@
+<odoo>
+    <!-- Form View -->
+    <record id="view_incident_report_form" model="ir.ui.view">
+        <field name="name">incident.report.form</field>
+        <field name="model">incident.report</field>
+        <field name="arch" type="xml">
+            <form string="Incident Report">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="doc_name" invisible="1"/>
+                            <field name="offense"/>
+                            <field name="offense_description"/>
+                            <field name="incident_location"/>
+                            <field name="damage_done"/>
+                        </group>
+                        <group> 
+                            <field name="posting_date"/>   
+                            <field name="date_and_time_of_offense"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="details_of_violation"/>
+                    </group>
+
+                    <notebook>
+                        <!-- If clearance type is  equal to resignation then show page -->
+                        <page string="Involved Employees">
+                            <field name="involved_employees">
+                                <tree editable="bottom">
+                                    <field name="employee"/>
+                                    <field name="employee_name"/>
+                                    <field name="involvement"/>
+                                    <field name="department"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+                
+            </form>
+        </field>
+    </record>
+    <record id="incident_report_tree_view" model="ir.ui.view">
+        <field name="name">incident.report.tree</field>
+        <field name="model">incident.report</field>
+        <field name="arch" type="xml">
+            <tree string="Incident Report">
+                 <field name="doc_name"/> 
+                <field name="posting_date"/>
+                <field name="offense"/>
+                <field name="date_and_time_of_offense" />
+            </tree>
+        </field>
+    </record>
+    <record id="view_involved_employees_tree" model="ir.ui.view">
+        <field name="name">involved.employees.tree</field>
+        <field name="model">involved.employees</field>
+        <field name="arch" type="xml">
+            <tree string="Involved Employees">
+                <field name="employee"/>
+                <field name="employee_name"/>
+                <field name="involvement"/>
+                <field name="department"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="incident_report_action" model="ir.actions.act_window">
+        <field name="name">Incident Report</field>
+        <field name="res_model">incident.report</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_id" ref="incident_report_tree_view"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Create a new Incident Report.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu -->
+    <menuitem id="menu_incident_root" 
+    name="Incident Report" 
+    action="incident_report_action" 
+    sequence="10" 
+    web_icon="incident_report,static/src/description/incident.png"/>
+
+    <!-- Child Menu Item for Employee Medical Type -->
+    <menuitem id="menu_offense_list" 
+    parent="menu_incident_root" 
+    name="Offense List" 
+    action="offense_list.offense_lists_action"/>
+
+</odoo>
