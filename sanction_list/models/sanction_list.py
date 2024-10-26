@@ -13,7 +13,6 @@ class SanctionList(models.Model):
     sanction_name = fields.Char(string='Sanction Name', required=True, track_visibility='onchange')
     description = fields.Text(string='Description', required=True, track_visibility='onchange')
     
-    test_field = fields.Text(string="Test field")
     
     @api.model
     def create(self, vals):
