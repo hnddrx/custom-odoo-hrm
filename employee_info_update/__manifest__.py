@@ -20,7 +20,6 @@
     'data': [
         'security/ir.model.access.csv',
         'views/approval_flow_views.xml',
-        'views/update_info_menu_views.xml',
         'views/update_info_view.xml',
     ],
     'installable': True,
