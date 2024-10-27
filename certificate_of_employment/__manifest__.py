@@ -13,6 +13,7 @@
         'resource',
         'web',
         'mail', 
+        'advanced_movement',
         'advanced_employee_manager',
         'custom_approval_flow',
         ],
@@ -23,11 +24,11 @@
         'data/certificate_of_employment.xml',
         
     ], 
-    """ "assets":{
+    "assets":{
         "web.assets_backend":[
-            'certificate_of_employment/static/src/js/counter/owl_component.js'
-        ] 
-    },  """
+            'certificate_of_employment/static/src/js/owl_component.js'
+        ]
+    },
     'installable': True,
     'application': True,
     'auto_install': False,
