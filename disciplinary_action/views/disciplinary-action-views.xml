@@ -22,7 +22,7 @@
                         </group>
                     </group>
                     <group>
-                        <field name="remarks"/>
+                 <!--        <field name="remarks"/> -->
                         <field name="hearing_remarks"/>
                     </group>
                     <div class="oe_chatter">
