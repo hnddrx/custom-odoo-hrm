@@ -41,7 +41,7 @@ class PrintComponent extends Component {
                 "method": "search_read",
                 "args": [], // args can be left empty since domain is provided in kwargs
                 "kwargs": {
-                    "fields": ["id", "doc_name", "company_id", "department", "first_name", "last_name"],
+                    "fields": ["id", "doc_name", "company_id", "department", "first_name", "last_name", "type", "purpose"],
                     "domain": [["doc_name", "=", text]]
                 }
             }
@@ -87,32 +87,104 @@ class PrintComponent extends Component {
     // Write the content to the new window, including employee data
     const employee = this.employeeData[0];
     printWindow.document.write(`
-      <html>
-        <head>
-          <title>Print</title>
-          <style>
-            body { font-family: Arial, sans-serif; }
-            .content-title { text-transform: uppercase; font-weight: bold; font-size: 18px; margin-bottom: 20px; text-align: center; }
-            .content-container { margin: 0 100px; }
-            .content p { line-height: 1.6; text-indent: 40px; margin-bottom: 15px; text-align: justify; }
-          </style>
-        </head>
-        <body>
-          <main>
-            <div class="header"></div>
-            <div class="content-container">
-              <div class="content-title">Certification</div>
-              <div class="content">
-                <p>This is to certify that Mr./Ms. ${employee.first_name} ${employee.last_name} is a permanent employee of,  a corporation duly registered and existing under Philippine Laws.</p>
-                <p>Mr./Ms. ${employee.last_name} has been employed since (date hired). He/She presently holds the position of (position) with a monthly compensation of (monthly rate + dma + ntax allow).</p>
-                <p>This certification is being issued upon the request of Mr./Ms. ${employee.last_name} for his/her bank loan application.</p>
-                <p>Should you have any further query that requires confirmation, please feel free to contact us at 02-89481528 or 0917-528-8038.</p>
-                <p>Signed this (date prepared).</p>
-              </div>
+     <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate of Employment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            color: #000;
+        }
+        .container {
+            padding: 20px;
+            width: 700px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+        }
+        .header img {
+            width: 200px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            margin: 5px;
+            font-size: 12px;
+        }
+        .title {
+            text-align: center;
+            font-weight: bold;
+            background-color: #F5A14E;
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        .content {
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+        .content p {
+            margin: 5px 0;
+        }
+        .label {
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .footer .date,
+        .footer .manager-info {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://via.placeholder.com/200x50?text=LOGO" alt="Company Logo">
+            <p>135 Sgt Rivera Cor Banawe Sts Brgy Manresa Quezon City</p>
+            <p>Tel: 8362-2080  Fax: 8362-2083</p>
+        </div>
+
+        <div class="title">
+            CERTIFICATE OF EMPLOYMENT
+        </div>
+
+        <div class="content">
+            <p>This is to certify that.</p>
+            <p><span class="label">Name:</span> ${employee.first_name} ${employee.last_name}</p>
+            <p><span class="label">Designation:</span> MARKETING STAFF</p>
+            <p><span class="label">Department:</span> ${employee.department}</p>
+            <p><span class="label">Remarks:</span> ${employee.type}</p>
+            <p><span class="label">Employment Period:</span> From <strong>SEPTEMBER 11, 2023</strong> TO <strong>MARCH 23, 2024</strong> only</p>
+
+            <p>This certification is being issued upon the request of Mr./Ms. ${employee.last_name} for ${ employee.purpose === 'Travel Abroad' ? 'travel abroad purpose only.' : 'whatever legal purpose it may serve.'}</p>
+
+            <p style="text-align: center; margin-top: 20px;">
+                -----------------------------------NOTHING FOLLOWS-----------------------------------
+            </p>
+
+            <div class="footer">
+                <div class="date">Quezon City, April 05, 2024.</div>
+
+                <div class="manager-info">
+                    Ma.Fe M. Galicia<br>
+                    Human Resources & Admin Manager
+                </div>
+
+                <p>This certificate is not valid if data has been changed or tampered.</p>
             </div>
-          </main>
-        </body>
-      </html>
+        </div>
+    </div>
+</body>
+</html>
+
     `);
   
     printWindow.document.close(); // Close the document writing
