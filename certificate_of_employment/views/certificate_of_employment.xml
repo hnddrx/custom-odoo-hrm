@@ -11,6 +11,7 @@
                     <field name="approver_ids" invisible="1"/>
                     <field name="is_approver" invisible="1"/>
                     <field name="company_id" invisible="1"/>
+                    <div class="js_template_using_owl"></div>s
                     <button string="Submit" name="action_confirm_movement" type="object" class="oe_highlight"
                             invisible="status != 'draft'" groups="advanced_movement.group_user"/>
                     <button string="Approve" name="action_approved_movement" type="object" class="oe_highlight"
@@ -22,9 +23,6 @@
                                domain="[('approval_flow_id', '!=', False), ('approval_flow_id', '=', employee_certificate_id),('company_id', '=', company_id)]"/>
                 </header>
                 <sheet>
-                    <group>
-                        <div class="print_div"></div>
-                    </group>
                     <group>
                         <group>
                             <group>
