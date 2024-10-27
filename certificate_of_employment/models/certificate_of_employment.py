@@ -30,7 +30,12 @@ class CertificateOfEmployment(models.Model):
     first_name = fields.Char(string=_('First Name'), readonly=True, compute='_compute_employee_info', store=True)
     middle_name = fields.Char(string=_('Middle Name'), readonly=True, compute='_compute_employee_info', store=True)
     last_name = fields.Char(string=_('Last Name'), readonly=True, compute='_compute_employee_info', store=True)
+    
+    """ ?company id: confirm what is this """
     company_id = fields.Many2one('res.company', string='Company', readonly=True, compute='_compute_employee_info', store=True)
+    
+    """ add company field """
+    company = fields.Char(string='Company', readonly=True, compute='_compute_employee_info', store=True)
     department = fields.Char(string='Department', readonly=True, compute='_compute_employee_info', store=True)
    # employment_status = fields.Char(string=_('Employment Status'), readonly=True, compute='_compute_employee_info', store=True)
     certified_by = fields.Many2one('hr.employee', string='Certified By', tracking=True)
@@ -98,9 +103,10 @@ class CertificateOfEmployment(models.Model):
                 record.first_name = record.employee.s_first_name
                 record.middle_name = record.employee.s_middle_name
                 record.last_name = record.employee.s_last_name
+                record.company = record.employee.company_id.name
                # record.employment_status = record.employee.employment_status
             else:
-                record.employee_name = record.department
+                record.employee_name = record.department = record.company = ''
                 record.first_name = record.middle_name = record.last_name = ''
                # record.employment_status = ''
                
