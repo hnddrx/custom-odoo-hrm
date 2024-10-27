@@ -16,7 +16,7 @@ class IncidentReport(models.Model):
     offense_name = fields.Text(string="Offense Name", readonly=True, compute='_compute_offense', store=True)
     offense_description = fields.Text(string="Offense Description", readonly=True, compute='_compute_offense', store=True)
     #char fields
-    incident_location = fields.Selection([('test','test'),('test2','test2')],string='Incident Location')
+    incident_location = fields.Char(string='Incident Location')
     violation_details = fields.Char(string='Violation Details')
     date_and_time_of_offense = fields.Datetime(string='Date and Time of Offense')
     details_of_violation = fields.Text(string='Details of Violation')
