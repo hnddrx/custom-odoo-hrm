@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <form string="Certificate of Employment" create="false">
                 <header>
-                    <field name="employee_certificate_id" invisible="1" force_save="1"/>
+                  <!--   <field name="employee_certificate_id" invisible="1" force_save="1"/>
                     <field name="approver_id" invisible="1"/>
                     <field name="approver_ids" invisible="1"/>
                     <field name="is_approver" invisible="1"/>
@@ -20,7 +20,7 @@
                     <field name="status" widget="badge" invisible="1" decoration-info="status == 'to_approve'"
                            decoration-warning="status == 'reject'" decoration-success="status == 'approved'"/>
                     <field name="current_stage_id" widget="statusbar"
-                               domain="[('approval_flow_id', '!=', False), ('approval_flow_id', '=', employee_certificate_id),('company_id', '=', company_id)]"/>
+                               domain="[('approval_flow_id', '!=', False), ('approval_flow_id', '=', employee_certificate_id),('company_id', '=', company_id)]"/> -->
                 </header>
                 <sheet>
                     <group>
