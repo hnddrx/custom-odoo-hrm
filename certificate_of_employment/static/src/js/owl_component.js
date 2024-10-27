@@ -12,6 +12,54 @@ class PrintComponent extends Component {
     });
   }
 
+  async fetchEmployee201(data){
+    /* let extractedData = employeeData.employee[1]
+    console.log('Extracted Data', extractedData) */
+    try {
+        const employeeData =  this.employeeData
+        console.log('Employee Data',  employeeData)
+        const url = '/web/dataset/call_kw'; // Odoo's JSON-RPC endpoint
+
+        const requestPayload = {
+            "jsonrpc": "2.0",
+            "method": "call",
+            "params": {
+                "model": "hr.employee",
+                "method": "search_read",
+                "args": [], // args can be left empty since domain is provided in kwargs
+                "kwargs": {
+                    
+                   
+                }
+            }
+        };
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestPayload),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.error) {
+            console.error('Error in Odoo response:', data.error);
+            return;
+        }
+
+        this.employeeData = data.result || []; // Store fetched data in component state, or empty array if null
+        console.log('Fetched employee data:', this.employeeData);
+
+    } catch (error) {
+        console.error("Error fetching employee data:", error);
+    }
+  }
+
   async fetchEmployeeData() {
     try {
         // Retrieve text using XPath
@@ -41,7 +89,7 @@ class PrintComponent extends Component {
                 "method": "search_read",
                 "args": [], // args can be left empty since domain is provided in kwargs
                 "kwargs": {
-                    "fields": ["id", "doc_name", "company_id", "department", "first_name", "last_name", "type", "purpose"],
+                    "fields": ["id", "doc_name", "company_id", "employee" ,"department", "first_name", "last_name", "type", "purpose"],
                     "domain": [["doc_name", "=", text]]
                 }
             }
@@ -74,8 +122,7 @@ class PrintComponent extends Component {
 }
 
   async onPrint() {
-  
-    
+
     if (!this.employeeData || this.employeeData.length === 0) {
       console.error("No employee data available to print.");
       alert("Employee data is not available to print."); // Show an alert to the user
@@ -86,6 +133,8 @@ class PrintComponent extends Component {
   
     // Write the content to the new window, including employee data
     const employee = this.employeeData[0];
+    console.log('Employee Data on Print',this.employeeData[0])
+
     printWindow.document.write(`
      <!DOCTYPE html>
 <html lang="en">
