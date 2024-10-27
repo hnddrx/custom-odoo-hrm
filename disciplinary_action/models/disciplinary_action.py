@@ -55,4 +55,4 @@ class DisciplinaryAction(models.Model):
     @api.depends('sanction')
     def _get_sanction(self):
         for record in self:
-            record.description = record.saction.description if record.sanction else ''
+            record.description = record.sanction.description if record.sanction else ''
