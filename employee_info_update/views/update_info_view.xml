@@ -9,39 +9,31 @@
                     <!-- Uncomment to add a save button -->
                     <!-- <button name="action_save" string="Save" type="object" class="btn-primary"/> -->
                     <!-- <button name="print_report" type="object" string="Print" class="btn btn-primary"/> -->
-                     
+                     <!-- 
                      <field name="user_id" invisible="1"/>
                      <field name="current_user_id" invisible="1"/>
                      <field name="current_user_in_stage_ids" invisible="1"/>
                      <field name="is_approver" invisible="1"/>
                      <field name="current_stage_id" invisible="1"/>
                      <field name="company_id" invisible="1"/>
-                     <field name="employee_info_id" invisible="1"/>
+                     <field name="employee_info_id" invisible="1"/> -->
                      
                      
-                    <button string="Submit" name="action_confirm_movement" type="object" class="oe_highlight"
-                            invisible="status != 'draft'" groups="advanced_movement.group_user"/>
+                    <button string="Submit" name="action_confirm" type="object" class="oe_highlight"/>
 
-                    <button string="Approve" name="action_approved_movement" type="object" class="oe_highlight"
+                    <!-- <button string="Approve" name="action_approved_movement" type="object" class="oe_highlight"
                             invisible="is_approver == True or current_user_id in current_user_in_stage_ids" context="{'button_action': True}"/>
                     
-                    <!-- <button string="Reject" name="action_reject_movement" type="object"
-                            invisible="is_approver == True or user_id not in current_user_in_stage_ids" groups="advanced_movement.group_manager"
-                            context="{'button_action': True}"/>
-
-                    <button string="Mark as Draft" name="action_draft_movement" type="object"
-                            invisible="status != 'reject' or user_id != create_uid" groups="advanced_movement.group_user"
-                            context="{'button_action': True}"/> -->
 
                     <field name="status" widget="badge" invisible="1" decoration-info="status == 'submitted'"
                         decoration-warning="status == 'reject'" decoration-success="status == 'approved'"/>
                     <field name="current_stage_id" widget="statusbar"
                         domain="[('approval_flow_id', '!=', False), ('approval_flow_id', '=', employee_info_id),('company_id', '=', company_id)]"
-                        groups="advanced_movement.group_user"/>
+                        groups="advanced_movement.group_user"/> -->
                 </header>
                 <sheet>
                     <group>
-                        <field name="status" string="Request Status" widget="badge" invisible="0"
+                        <field name="status" string="Request Status" widget="badge" invisible="1"
                                decoration-info="status == 'submitted'"
                                decoration-warning="status == 'reject'" decoration-success="status == 'approved'"/>
                     </group>
@@ -101,4 +93,11 @@
         action="update_info_action"
         sequence="25"
         web_icon="employee_info_update,static/src/description/updated.png"/>
+
+                  
+        <menuitem id="approval_flow_allocation_menu_update_info"
+                  name="Approval Flow"
+                  action="custom_approval_flow.action_approval_allocation_flow"
+                  parent="employee_info_update.menu_update_info_action"
+                  sequence="20"/>
 </odoo>
