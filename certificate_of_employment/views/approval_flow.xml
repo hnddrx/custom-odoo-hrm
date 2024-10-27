@@ -79,7 +79,7 @@
     </record>
 
 
-    <menuitem id="menu_employment_certificate_approval_flow_root"
+ <!--    <menuitem id="menu_employment_certificate_approval_flow_root"
               name="Approval Flow"
             parent="menu_certificate_of_employment_child"
     />
@@ -89,6 +89,6 @@
               name="Approval Flow"
               action="action_approval_certificate_of_employment_flow"
               parent="menu_employment_certificate_approval_flow_root"
-    />
+    /> -->
 
 </odoo>
