@@ -12,6 +12,7 @@
                             <field name="employee"/>
                             <field name="employee_name"/>
                             <field name="sanction"/>
+                            <field name="description"/>
                         </group>
                         <group>
                             <field name="posting_date"/>
@@ -22,7 +23,7 @@
                         </group>
                     </group>
                     <group>
-                        <field name="remarks"/>
+                 <!--        <field name="remarks"/> -->
                         <field name="hearing_remarks"/>
                     </group>
                     <div class="oe_chatter">
