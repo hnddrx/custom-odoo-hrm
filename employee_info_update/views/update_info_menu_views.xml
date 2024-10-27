@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <menuitem id="approval_flow_allocation_menu_update_info"
+                  name="Approval Flow"
+                  action="custom_approval_flow.action_approval_allocation_flow"
+                  parent="employee_info_update.menu_update_info_action"
+                  sequence="20"
+        />
+    </data>
+</odoo>
