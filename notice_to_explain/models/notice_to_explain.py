@@ -25,7 +25,7 @@ class NoticeToExplain(models.Model):
     attachment = fields.Binary(string="Attachment")
     attachment_filename = fields.Char(string="Attachment Filename")
 
-    remarks = fields.Text(string=_("Remarks"))
+    remarks = fields.Text(string=_("Explanation"))
     
     status = fields.Selection([
         ('draft', 'Draft'),
