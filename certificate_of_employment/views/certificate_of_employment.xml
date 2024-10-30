@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <form string="Certificate of Employment" create="false">
                 <header>
-                  <!--   <field name="employee_certificate_id" invisible="1" force_save="1"/>
+                    <field name="employee_certificate_id" invisible="1" force_save="1"/>
                     <field name="approver_id" invisible="1"/>
                     <field name="approver_ids" invisible="1"/>
                     <field name="is_approver" invisible="1"/>
@@ -16,12 +16,10 @@
                             invisible="status != 'draft'" groups="advanced_movement.group_user"/>
                     <button string="Approve" name="action_approved_movement" type="object" class="oe_highlight"
                             invisible="is_approver == True"/>
-                
                     <field name="status" widget="badge" invisible="1" decoration-info="status == 'to_approve'"
                            decoration-warning="status == 'reject'" decoration-success="status == 'approved'"/>
                     <field name="current_stage_id" widget="statusbar"
-                               domain="[('approval_flow_id', '!=', False), ('approval_flow_id', '=', employee_certificate_id),('company_id', '=', company_id)]"/> -->
-                    <div class="js_template_using_owl"></div>
+                               domain="[('approval_flow_id', '!=', False), ('approval_flow_id', '=', employee_certificate_id),('company_id', '=', company_id)]"/>
                 </header>
                 <sheet>
                     <group>
