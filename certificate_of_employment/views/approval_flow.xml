@@ -22,7 +22,7 @@
                             <field name="leave_type" required="1" readonly="0"
                                    invisible="model_apply != 'hr_leave_application'"/>
                             <field name="allocation_type" readonly="1" force_save="1"
-                                   invisible="model_apply != 'hr_leave_allocation'"/>
+                                   invisible="model_apply != 'certificate_of_employment'"/>
                             <field name="overtime_type" readonly="1" force_save="1"
                                    invisible="model_apply != 'over_time'"/>
                             <field name="attendance_type" invisible="model_apply != 'hr_attendance'"/>
@@ -67,8 +67,7 @@
         <field name="name">Approval Flow</field>
         <field name="res_model">approval.flow</field>
         <field name="view_mode">tree,form</field>
-        <field name="domain">[('model_apply', 'in', ('hr_leave_allocation', 'hr_leave_application', 'over_time',
-            'attendance_application', 'certificate_employee'))]
+        <field name="domain">[('model_apply', '=', 'certificate_of_employment')]
         </field>
 
             <field name="context">{'default_selection': 'not_display_movement'}</field>
@@ -79,16 +78,16 @@
     </record>
 
 
- <!--    <menuitem id="menu_employment_certificate_approval_flow_root"
+    <menuitem id="menu_employment_certificate_approval_flow_root"
               name="Approval Flow"
             parent="menu_certificate_of_employment_child"
     />
 
-
+9
     <menuitem id="action_approval_certificate_of_employment_flow_id"
               name="Approval Flow"
               action="action_approval_certificate_of_employment_flow"
               parent="menu_employment_certificate_approval_flow_root"
-    /> -->
+    /> 
 
 </odoo>
