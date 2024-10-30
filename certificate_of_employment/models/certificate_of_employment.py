@@ -32,7 +32,7 @@ class CertificateOfEmployment(models.Model):
     last_name = fields.Char(string=_('Last Name'), readonly=True, compute='_compute_employee_info', store=True)
     
     """ ?company id: confirm what is this """
-    company_id = fields.Many2one('res.company', string='Company', readonly=True, compute='_compute_employee_info', store=True)
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, store=True)
     
     """ add company field """
     company = fields.Char(string='Company', readonly=True, compute='_compute_employee_info', store=True)
@@ -104,6 +104,7 @@ class CertificateOfEmployment(models.Model):
                 record.middle_name = record.employee.s_middle_name
                 record.last_name = record.employee.s_last_name
                 record.company = record.employee.company_id.name
+                
                # record.employment_status = record.employee.employment_status
             else:
                 record.employee_name = record.department = record.company = ''
