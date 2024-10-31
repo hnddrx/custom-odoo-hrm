@@ -12,7 +12,8 @@
         'web',
         'mail', 
         'advanced_employee_manager',
-        'sanction_list'
+        'sanction_list',
+        'offense_list'
     ],
     'category': 'Employee Records',
     'description': """
