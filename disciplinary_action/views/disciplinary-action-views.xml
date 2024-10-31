@@ -11,6 +11,7 @@
                             <field name="incident_report"/>
                             <field name="employee"/>
                             <field name="employee_name"/>
+                            <field name="underwent"/>
 
                             <field name="offense"/>
                             <field name="offense_description"/>
@@ -83,7 +84,7 @@
         <field name="name">Disciplinary Action</field>
         <field name="res_model">disciplinary.action</field>
         <field name="view_mode">tree,kanban,form</field>
-        <field name="view_id" ref="disciplinary_action_kanban_view"/>
+        <field name="view_id"/>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
                 Create a new Disciplinary Action.
