@@ -11,7 +11,6 @@
                     <button name="action_reset_draft" type="object" string="Reset to Draft" invisible="status != 'submitted'"/>
                 </header>
                 <sheet>
-
                     <group>
                         <group>
                             <field name="status" readonly="1"/>
@@ -19,7 +18,8 @@
                             <field name="employee"/>
                         </group>
                         <group>
-                            <field name="attachment" filename="attachment_filename"/>
+                            <field name="attachment_filename" invisible="1"/>
+                            <field name="attachment" filename="attachment_filename"/>  
                             <field name="remarks"/>
                         </group>
                     </group>
@@ -42,7 +42,6 @@
                 <field name="doc_name" />
                 <field name="incident_report" />
                 <field name="employee"/>
-    
             </tree>
         </field>
     </record>
@@ -82,5 +81,5 @@
     </record>
 
     <!-- Menu -->
-    <menuitem id="menu_notice_to_explain" name="Notice to Explain" action="notice_to_explain_action" sequence="10" web_icon="notice_explain,static/src/description/notice.png" />
+s    <menuitem id="menu_notice_to_explain" name="Notice to Explain" action="notice_to_explain_action" sequence="10" web_icon="notice_explain,static/src/description/notice.png" />
 </odoo>
