@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--        Override ol view Approval Flow-->
+    <record id="certificate_of_employment_approval_flow_form" model="ir.ui.view">
+        <field name="name">certificate.of.employment.form.views</field>
+        <field name="model">approval.flow</field>
+        <field name="arch" type="xml">
+            <form string="Approval flow Form" create="1">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="model_apply"/>
+                            <field name="company_id" readonly="1"/>
+                            <field name="sequenced"/>
+                            <field name="parallel"/>
+                            <field name="at_least_one_approval" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="movement_type" required="1" readonly="0"
+                                   invisible="model_apply != 'hr_movement'"/>
+                            <field name="leave_type" required="1" readonly="0"
+                                   invisible="model_apply != 'hr_leave_application'"/>
+                            <field name="allocation_type" readonly="1" force_save="1"
+                                   invisible="model_apply != 'certificate_of_employment'"/>
+                            <field name="overtime_type" readonly="1" force_save="1"
+                                   invisible="model_apply != 'over_time'"/>
+                            <field name="attendance_type" invisible="model_apply != 'hr_attendance'"/>
+                            <!--							<field name="loan_type" invisible="model_apply != 'loan_application'"/>-->
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Stage">
+                            <field name="stage_id">
+                                <tree widget="one2many_tags">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="approval_role_id"/>
+                                    <field name="user_ids" widget="many2many_tags"
+                                           options="{'no_create': True, 'color_field': 'color'}" required="True"/>
+                                    <button name="unlink" type="object"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="certificate_of_employment_tree_views" model="ir.ui.view">
+        <field name="name">approval.flow.certificate_of_employment.tree</field>
+        <field name="model">approval.flow</field>
+        <field name="arch" type="xml">
+            <tree string="Approval flow Tree" duplicate="false" create="1" import="0">
+                <field name="model_apply" readonly="1"/>
+                <field name="leave_type" string="Application Type"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_approval_certificate_of_employment_flow" model="ir.actions.act_window">
+        <field name="name">Approval Flow</field>
+        <field name="res_model">approval.flow</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('model_apply', '=', 'certificate_of_employment')]
+        </field>
+
+            <field name="context">{'default_selection': 'not_display_movement'}</field>
+        <field name="view_ids"
+               eval="[(5, 0, 0),
+				  (0, 0, {'view_mode': 'tree', 'view_id': ref('certificate_of_employment_tree_views')}),
+				  (0, 0, {'view_mode': 'form', 'view_id': ref('certificate_of_employment_approval_flow_form')})]"/>
+    </record>
+
+
+    <menuitem id="menu_employment_certificate_approval_flow_root"
+              name="Approval Flow"
+            parent="menu_certificate_of_employment_child"
+    />
+
+9
+    <menuitem id="action_approval_certificate_of_employment_flow_id"
+              name="Approval Flow"
+              action="action_approval_certificate_of_employment_flow"
+              parent="menu_employment_certificate_approval_flow_root"
+    /> 
+
+</odoo>

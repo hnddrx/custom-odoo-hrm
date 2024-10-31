@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="certificate_of_employment_form" model="ir.ui.view">
+        <field name="name">certificate.of.employment.form</field>
+        <field name="model">certificate.of.employment</field>
+        <field name="arch" type="xml">
+            <form string="Certificate of Employment" create="false">
+                <header>
+                    <field name="employee_certificate_id" invisible="1" force_save="1"/>
+                    <field name="approver_id" invisible="1"/>
+                    <field name="approver_ids" invisible="1"/>
+                    <field name="is_approver" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                    <div class="js_template_using_owl"></div>
+                    <button string="Submit" name="action_confirm_movement" type="object" class="oe_highlight"
+                            invisible="status != 'draft'" groups="advanced_movement.group_user"/>
+                    <button string="Approve" name="action_approved_movement" type="object" class="oe_highlight"
+                            invisible="is_approver == True"/>
+                    <field name="status" widget="badge" invisible="1" decoration-info="status == 'to_approve'"
+                           decoration-warning="status == 'reject'" decoration-success="status == 'approved'"/>
+                    <field name="current_stage_id" widget="statusbar"
+                               domain="[('approval_flow_id', '!=', False), ('approval_flow_id', '=', employee_certificate_id),('company_id', '=', company_id)]"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <group>
+                                <field name="employee" widget='many2one'/>
+                                <field name="first_name" readonly="1"/>
+                                <field name="middle_name" readonly="1"/>
+                                <field name="last_name" readonly="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="posting_date" widget="date"/>
+                            <field name="company"/>
+                            <field name="from_date" class="o_custom_from_date" />
+                            <field name="to_date" class="o_custom_to_date" /> 
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="COE Details">
+                            <group>
+                                <field name="type" widget="selection" />
+                                <field name="purpose" widget="selection" />
+                            </group>
+                            <group>
+                                <field name="others" invisible="purpose != 'Others'"/>
+                            </group>
+                        </page>
+                        <page string="Signatories">
+                            <group>
+                                <field name="certified_by" widget='many2one' options="{'no_open': True}"/>
+                            </group>
+                        </page>
+                    </notebook>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread" options="{'live_update': True}"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                    </div> 
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="certificate_of_employment_tree_view" model="ir.ui.view">
+        <field name="name">certificate.of.employment.tree</field>
+        <field name="model">certificate.of.employment</field>
+        <field name="arch" type="xml">
+            <tree string="Certificate of Employment">
+                <field name="doc_name" />
+                <field name="employee"/>
+                <field name="type"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="certificate_of_employment_kanban_view" model="ir.ui.view">
+        <field name="name">certificate.of.employment.kanban</field>
+        <field name="model">certificate.of.employment</field>
+        <field name="arch" type="xml">
+            <kanban class="certificate_of_employment_kanban">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="o_kanban_card oe_kanban_global_click_edit custom-flex">
+                            <div class="o_kanban_info">
+                                <div><strong>Document Name:</strong> <field name="doc_name"/></div>
+                                <div><strong>Employee:</strong> <field name="employee"/></div>
+                                <div><strong>Posting Date:</strong> <field name="posting_date"/></div>
+                                <div><strong>COE Type:</strong> <field name="type"/></div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+     <!-- Actions -->
+     <record id="action_certificate_of_employment_tree" model="ir.actions.act_window">
+        <field name="name">Certificate of Employment</field>
+        <field name="res_model">certificate.of.employment</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Create a new Certificate of Employment.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_certificate_of_employment_child" 
+        name="Certificate of Employment" 
+        action="action_certificate_of_employment_tree" 
+        sequence="10"
+        web_icon="certificate_of_employment,static/src/description/coe.png"/>
+
+</odoo>
