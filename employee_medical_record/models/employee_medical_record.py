@@ -17,9 +17,9 @@ class EmployeeMedicalRecords(models.Model):
     posting_date = fields.Date(string='Posting Date', default=fields.Date.context_today, readonly=True)
     date = fields.Date(string='Date', required=True, tracking=True)
     
-    first_name = fields.Char(string='First Name', readonly=True, copy=False)
-    middle_name = fields.Char(string='Middle Name', readonly=True, copy=False)
-    last_name = fields.Char(string='Last Name', readonly=True, copy=False)
+    first_name = fields.Char(string='First Name', readonly=True, compute="_get_employee_info", copy=False)
+    middle_name = fields.Char(string='Middle Name', readonly=True, compute="_get_employee_info", copy=False)
+    last_name = fields.Char(string='Last Name', readonly=True, compute="_get_employee_info", copy=False)
     
     medical_type = fields.Many2one('medical.type', string='Medical Type', required=True)
     other_type = fields.Text(string='Other Type')
@@ -43,6 +43,15 @@ class EmployeeMedicalRecords(models.Model):
         if vals.get('doc_name', 'New') == 'New':
             vals['doc_name'] = self.env['ir.sequence'].next_by_code('employee.medical.records') or 'New'
         return super(EmployeeMedicalRecords, self).create(vals)
+    
+    
+    @api.depends('employee')
+    def _get_employee_info(self):
+        """ Get employee information """
+        for record in self:
+            record.first_name = record.employee.s_first_name if record.employee else ''
+            record.middle_name = record.employee.s_middle_name if record.employee else ''
+            record.last_name = record.employee.s_last_name if record.employee else ''
 
     @api.depends('medical_type')
     def _compute_show_other_type(self):
