@@ -99,12 +99,7 @@
     web_icon="disciplinary_action,static/src/description/discipline.png" />
 
         <!-- Menu Item -->
-    <menuitem
-        id="menu_sanction_lists_action"
-        name="Sanction List"
-        parent="menu_diciplinary_root"
-        action="sanction_list.sanction_lists_action"
-        sequence="40"/>
+  
 
     <menuitem id="menu_offense_list" 
         parent="menu_diciplinary_root" 
@@ -112,4 +107,11 @@
         action="offense_list.offense_lists_action"
         sequence="60"
         />
+
+    <menuitem
+        id="menu_sanction_lists_action"
+        name="Sanction List"
+        parent="menu_diciplinary_root"
+        action="sanction_list.sanction_lists_action"
+        sequence="40"/>
 </odoo>
