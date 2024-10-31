@@ -100,4 +100,11 @@
         parent="menu_diciplinary_root"
         action="sanction_list.sanction_lists_action"
         sequence="40"/>
+
+    <menuitem id="menu_offense_list" 
+        parent="menu_diciplinary_root" 
+        name="Offense List" 
+        action="offense_list.offense_lists_action"
+        sequence="60"
+        />
 </odoo>
