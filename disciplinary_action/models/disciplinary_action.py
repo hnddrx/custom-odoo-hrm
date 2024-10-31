@@ -20,7 +20,11 @@ class DisciplinaryAction(models.Model):
     """  incident_report_description = fields.Text(string='Description', readonly=True) """
     
     sanction = fields.Many2one('sanction.lists', string='Sanction',required=True)
-    description = fields.Char(string='Description', readonly=True, compute='_get_sanction', store=True)
+    description = fields.Char(string='Sanction Description', readonly=True, compute='_get_sanction', store=True)
+    
+    offense = fields.Many2one('offense.lists', string='Sanction',required=True)
+    offense_description = fields.Char(string='Offense Description', readonly=True, compute='_get_offense', store=True)
+    
     terminated_on = fields.Date(string='Terminated On')
 
     employee = fields.Many2one('hr.employee',string='Employee', required=True)
@@ -56,3 +60,10 @@ class DisciplinaryAction(models.Model):
     def _get_sanction(self):
         for record in self:
             record.description = record.sanction.description if record.sanction else ''
+    
+    @api.depends('offense')
+    def _get_offense(self):
+        for record in self:
+            record.offense_description = record.offense.description if record.offense else ''
+            
+            

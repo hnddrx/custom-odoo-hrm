@@ -11,9 +11,14 @@
                             <field name="incident_report"/>
                             <field name="employee"/>
                             <field name="employee_name"/>
+
+                            <field name="offense"/>
+                            <field name="offense_description"/>
                             <field name="sanction"/>
                             <field name="description"/>
+                           
                         </group>
+                        
                         <group>
                             <field name="posting_date"/>
                             <field name="terminated_on" invisible="True"/>
