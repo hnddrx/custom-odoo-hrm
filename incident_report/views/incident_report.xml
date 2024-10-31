@@ -91,9 +91,6 @@
     web_icon="incident_report,static/src/description/incident.png"/>
 
     <!-- Child Menu Item for Employee Medical Type -->
-    <menuitem id="menu_offense_list" 
-    parent="menu_incident_root" 
-    name="Offense List" 
-    action="offense_list.offense_lists_action"/>
+   
 
 </odoo>
