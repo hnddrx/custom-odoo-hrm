@@ -13,8 +13,6 @@
                             <field name="employee_name"/>
                             <field name="sanction"/>
                             <field name="description"/>
-                            <field name="offense"/>
-                            <field name="offense_description"/>
                         </group>
                         <group>
                             <field name="posting_date"/>
