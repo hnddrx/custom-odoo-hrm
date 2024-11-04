@@ -97,20 +97,17 @@ class CertificateOfEmployment(models.Model):
     def _compute_employee_info(self):
         for record in self:
             try:
-                employee = record.employee
-                record.update({
-                    'employee_name': employee.s_full_name or '',
-                    'department': employee.department_id.name or '',
-                    'first_name': employee.s_first_name or '',
-                    'middle_name': employee.s_middle_name or '',
-                    'last_name': employee.s_last_name or '',
-                    'company': employee.company_id.name or '',
-                    'from_date': employee.s_date_hired or '',
-                    'to_date': employee.s_date_of_separation or fields.Date.context_today(record)
-                })
+                    record.employee_name = record.employee.s_full_name or ''
+                    record.department = record.employee.department_id.name or ''
+                    record.first_name = record.employee.s_first_name or ''
+                    record.middle_name = record.employee.s_middle_name or ''
+                    record.last_name = record.employee.s_last_name or ''
+                    record.company = record.employee.company_id.name or ''
+                    record.from_date = record.employee.s_date_hired or '' 
+                    record.to_date = record.employee.s_date_of_separation or fields.Date.context_today
+              
             except Exception as e:
                 _logger.error("Error computing employee info for record %s: %s", record.id, e)
-
 
     @api.depends('status', 'current_stage_id.user_ids')
     def _compute_is_approver_refuse(self):
@@ -158,11 +155,12 @@ class CertificateOfEmployment(models.Model):
 
                 # Set approver IDs and status based on approval flow type
                 if rec.employee_certificate_id.sequenced:
-                    rec.write({
-                        'status': 'to_approve',
-                        'current_stage_id': all_stages[0].id,
-                        'approver_ids': all_stages[0].user_ids.ids
-                    })
+                    for stage in all_stages:
+                        rec.write({
+                            'status': 'to_approve',
+                            'current_stage_id': stage.id,
+                            'approver_ids': stage.user_ids.ids
+                        })
                 else:
                     rec.write({
                         'status': 'to_approve',
