@@ -50,10 +50,10 @@
                                 <field name="date_issued_invi" column_invisible="True"/>
                                 <field name="item_name"/>
                                 <field name="item_code"/>
-                                <field name="quantity"/>
-                                <field name="date_issue" readonly = "accountability_type == 'issuance' or accountability_type == False"/>
-                                <field name="return_to" readonly = "accountability_type == 'issuance' or accountability_type == False"/>
-                                <field name="date_return" readonly = "accountability_type == 'issuance' or accountability_type == False"/>
+                                <field name="quantity" column_invisible="accountability_type != 'issuance'"/>
+                                <field name="date_issue" readonly = "accountability_type == 'issuance'"/>
+                                <field name="return_to" readonly = "accountability_type == 'issuance'" column_invisible="accountability_type == 'issuance'"/>
+                                <field name="date_return" readonly = "accountability_type == 'issuance'" column_invisible="accountability_type == 'issuance'"/>
                                 <field name="accountability_type"/>
                             </tree>            
                         </field>
