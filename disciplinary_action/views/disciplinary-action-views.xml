@@ -11,7 +11,6 @@
                             <field name="incident_report"/>
                             <field name="employee"/>
                             <field name="employee_name"/>
-                            <field name="underwent"/>
 
                             <field name="offense"/>
                             <field name="offense_description"/>
@@ -26,6 +25,7 @@
                             <field name="number_of_days"/>
                             <field name="suspended_from"/>
                             <field name="suspended_to"/>
+                            <field name="underwent"/>
                         </group>
                     </group>
                     <group>
