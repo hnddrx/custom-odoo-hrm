@@ -37,11 +37,11 @@
                         </group>
                     </group>
                     
-                    <separator string="Issuance" invisible = "accountability_type == 'return' or accountability_type == False" />
-                    <separator string="Return" invisible = "accountability_type == 'issuance' or accountability_type == False"/>
+                    <separator string="Issuance" invisible = "accountability_type == 'return'" />
+                    <separator string="Return" invisible = "accountability_type == 'issuance'"/>
 
                     <!-- One2many Field for Form Items -->
-                    <notebook invisible="accountability_type == False">
+                    <notebook>
                     <page string="Form Items">
                     <group>
                         <field name="form_items" string="" widget="many2many_list"
@@ -50,14 +50,12 @@
                                 <field name="date_issued_invi" column_invisible="True"/>
                                 <field name="item_name"/>
                                 <field name="item_code"/>
-                                <field name="quantity"/>
-                                <field name="date_issue" readonly = "accountability_type == 'issuance' or accountability_type == False" width="10%" />
-                                <field name="return_to" readonly = "accountability_type == 'issuance' or accountability_type == False"  width="20%"/>
-                                <field name="date_return" readonly = "accountability_type == 'issuance' or accountability_type == False" width="10%"/>
+                                <field name="quantity" column_invisible="accountability_type != 'issuance'"/>
+                                <field name="date_issue" readonly = "accountability_type == 'issuance'"/>
+                                <field name="return_to" readonly = "accountability_type == 'issuance'" column_invisible="accountability_type == 'issuance'"/>
+                                <field name="date_return" readonly = "accountability_type == 'issuance'" column_invisible="accountability_type == 'issuance'"/>
                                 <field name="accountability_type"/>
-                              
-                            </tree>
-                            
+                            </tree>            
                         </field>
                     </group>
                     </page>

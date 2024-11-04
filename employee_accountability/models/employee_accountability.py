@@ -32,7 +32,7 @@ class EmployeeAccountability(models.Model):
     accountability_type = fields.Selection([
         ('issuance', 'Issuance'),
         ('return', 'Return'),
-    ], string='Type', required=True)
+    ], string='Type', required=True, default='issuance')
 
     # Override create method
     @api.model
