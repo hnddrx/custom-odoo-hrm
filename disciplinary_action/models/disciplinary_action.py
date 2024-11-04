@@ -21,7 +21,7 @@ class DisciplinaryAction(models.Model):
     
     sanction = fields.Many2one('sanction.lists', string='Sanction',required=True)
     description = fields.Char(string='Sanction Description', readonly=True, compute='_get_sanction', store=True)
-    underwent = fields.Boolean(string='Underwen to a conference', default=False)
+    underwent = fields.Boolean(string='Underwent to a conference', default=False)
     offense = fields.Many2one('offense.lists', string='Offense',required=True)
     offense_description = fields.Char(string='Offense Description', readonly=True, compute='_get_offense', store=True)
     
