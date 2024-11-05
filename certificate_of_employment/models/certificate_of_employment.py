@@ -127,11 +127,11 @@ class CertificateOfEmployment(models.Model):
                 all_stages = self.env['movement.stage'].search([('approval_flow_id', '=', rec.employee_certificate_id.id)])
                 user = rec.env.user
                 if rec.employee_certificate_id.sequenced:
-                    """ #rec.approver_id = user """
+                    """ rec.approver_id = user """
                     rec.approver_ids = rec.current_stage_id.user_ids if rec.current_stage_id else rec.employee_certificate_id.stage_id.user_ids
                 elif rec.employee_certificate_id.parallel:
                     if all([stage.status == 'pending' for stage in all_stages]):
-                        """  # rec.approver_id = user """
+                        """ rec.approver_id = user """
                         rec.approver_ids = rec.employee_certificate_id.stage_id.user_ids
                     else:
                         for stage in all_stages:
