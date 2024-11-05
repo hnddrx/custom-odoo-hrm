@@ -12,6 +12,13 @@ class CertificateOfEmployment(models.Model):
     _description = 'Certificate of Employment'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'doc_name'  # Use the doc_name field as the display name
+    
+    
+    TYPE_SELECTION = [
+        ('COE With Basic Salary & Basic Allowance', 'COE With Basic Salary & Basic Allowance'),
+        ('COE With Basic Salary, Confidential Allowance and Basic Allowance', 'COE With Basic Salary, Confidential Allowance and Basic Allowance'),
+        ('Without Compensation', 'Without Compensation'),
+    ]
 
     def _get_default_approval_flow(self):
         """Get default data from approval_flow table based on the model and company."""
@@ -57,11 +64,7 @@ class CertificateOfEmployment(models.Model):
     from_date = fields.Date(string='From Date', readonly=True, compute='_compute_employee_info', store=True)
     to_date = fields.Date(string='To Date', readonly=True, compute='_compute_employee_info', store=True)
     
-    type = fields.Selection([
-        ('COE With Basic Salary & Basic Allowance', 'COE With Basic Salary & Basic Allowance'),
-        ('COE With Basic Salary, Confidential Allowance and Basic Allowance', 'COE With Basic Salary, Confidential Allowance and Basic Allowance'),
-        ('Without Compensation', 'Without Compensation'),
-    ], string="Type", tracking=True)
+    type = fields.Selection(TYPE_SELECTION, string="Type", tracking=True)
 
     # Date fields
     posting_date = fields.Date(string='Posting Date', default=fields.Date.context_today, readonly=True)
@@ -81,6 +84,11 @@ class CertificateOfEmployment(models.Model):
         ('reject', 'Rejected'),
         ('approved', 'Approved')
     ], string="Status", default="draft", required=True, readonly=True, tracking=True)
+    
+    @api.model
+    def get_type_selection(self):
+        """Return the selection options for type as a list of tuples."""
+        return self.TYPE_SELECTION
 
     # Automate doc_name using ir.sequence
     @api.model
@@ -231,3 +239,22 @@ class CertificateOfEmployment(models.Model):
                 _logger.error("Error computing stage ID for record %s: %s", rec.id, e)
 
     # Define any other necessary methods with logging
+    
+    
+    
+""" Model for Certificate of employement signatories """
+class CoeSignatories(models.Model):
+    _name = 'coe.signatories'
+    _description = 'Certificate of Employment Signatories'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    #fields
+    certificate_type = fields.Selection(
+        selection=lambda self: self.env['certificate.of.employment'].get_type_selection(),
+        string='Certificate Type',
+        required=True,
+        tracking=True
+    )
+    signee = fields.Many2one('hr.employee' ,string='Signee', required=True, tracking=True)
+    
+    
