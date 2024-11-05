@@ -44,17 +44,17 @@
                     <notebook>
                     <page string="Form Items">
                     <group>
-                        <field name="form_items" string="" widget="many2many_list"
+                        <field name="form_items" string="" widget="one2many_list"
                             context="{'form_view_initial_mode': 'edit'}" >
                             <tree editable="bottom">
-                                <field name="date_issued_invi" column_invisible="True"/>
+                                <field name="accountability_type_rel" column_invisible="1"/>
+                                <field name="date_issued_invi" invisible = "accountability_type_rel == 'return'"/>
                                 <field name="item_name"/>
                                 <field name="item_code"/>
-                                <field name="quantity" column_invisible="accountability_type != 'issuance'"/>
-                                <field name="date_issue" readonly = "accountability_type == 'issuance'"/>
-                                <field name="return_to" readonly = "accountability_type == 'issuance'" column_invisible="accountability_type == 'issuance'"/>
-                                <field name="date_return" readonly = "accountability_type == 'issuance'" column_invisible="accountability_type == 'issuance'"/>
-                                <field name="accountability_type"/>
+                                <field name="quantity" column_invisible = "'accountability_type_rel', '==', 'return'"/>
+                                <field name="date_issue" readonly = "accountability_type_rel == 'return'"/>
+                                <field name="return_to" readonly = "1" column_invisible="1"/>
+                                <field name="date_return" readonly = "1" column_invisible="1"/>
                             </tree>            
                         </field>
                     </group>

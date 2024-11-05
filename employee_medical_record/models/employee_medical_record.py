@@ -20,7 +20,7 @@ class EmployeeMedicalRecords(models.Model):
     first_name = fields.Char(string='First Name', readonly=True, compute="_get_employee_info", copy=False)
     middle_name = fields.Char(string='Middle Name', readonly=True, compute="_get_employee_info", copy=False)
     last_name = fields.Char(string='Last Name', readonly=True, compute="_get_employee_info", copy=False)
-    
+    company = fields.Char(string='Company', readonly=True, compute="_get_employee_info", copy=False)
     medical_type = fields.Many2one('medical.type', string='Medical Type', required=True)
     other_type = fields.Text(string='Other Type')
     
@@ -52,6 +52,7 @@ class EmployeeMedicalRecords(models.Model):
             record.first_name = record.employee.s_first_name if record.employee else ''
             record.middle_name = record.employee.s_middle_name if record.employee else ''
             record.last_name = record.employee.s_last_name if record.employee else ''
+            record.company = record.employee.company_id.name or ''
 
     @api.depends('medical_type')
     def _compute_show_other_type(self):
