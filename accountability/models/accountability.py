@@ -32,6 +32,20 @@ class EmployeeAccountability(models.Model):
         ('issuance', 'Issuance'),
         ('return', 'Return'),
     ], string='Type', required=True, default='issuance')
+    
+    issuance_table = fields.One2many(
+        'issuance',
+        'accountability_id',
+        string = 'Issuance Table'
+        
+    )
+    
+    return_table = fields.One2many(
+        'return',
+        'accountability_id',
+        string = 'Return Table'
+        
+    )
 
     # Override create method
     @api.model
@@ -63,3 +77,28 @@ class EmployeeAccountability(models.Model):
                 record.company = ''
                 record.first_name = ''
                 record.last_name = ''
+
+class Issuance(models.Model):
+    _name = 'issuance'
+    _description = 'Issuance'
+    
+    
+    accountability_id = fields.Many2one('accountability', string="Accountability ID")
+    item_name = fields.Char(string="Item Name")
+    item_code = fields.Char(string="Item Code")
+    quantity = fields.Integer(string="Quantity")
+    date_issued = fields.Date(string="Date Issued")
+    
+class Return(models.Model):
+    _name = 'return'
+    _description = 'Return'
+    
+    
+    accountability_id = fields.Many2one('accountability', string="Accountability ID")
+    item_name = fields.Char(string="Item Name")
+    item_code = fields.Char(string="Item Code")
+    quantity = fields.Integer(string="Quantity")
+    date_issued = fields.Date(string="Date Issued") 
+    return_to = fields.Many2one('hr.employee', string='Return To')
+    date_returned = fields.Date( string='Date Returned')
+    
