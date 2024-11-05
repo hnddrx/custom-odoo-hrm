@@ -44,8 +44,7 @@ class CertificateOfEmployment(models.Model):
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, store=True)
     company = fields.Char(string='Company', readonly=True, compute='_compute_employee_info', store=True)
     department = fields.Char(string='Department', readonly=True, compute='_compute_employee_info', store=True)
-    certified_by = fields.Many2one('hr.employee', string='Certified By', tracking=True)
-
+    certified_by = fields.Many2one('hr.employee', string='Certified By', compute='_compute_certified_by', store=True, readonly=False)
     # Selection fields
     purpose = fields.Selection([
         ('Travel Abroad', 'Travel Abroad'),
@@ -89,6 +88,23 @@ class CertificateOfEmployment(models.Model):
     def get_type_selection(self):
         """Return the selection options for type as a list of tuples."""
         return self.TYPE_SELECTION
+    
+    
+    @api.depends('type')
+    def _compute_certified_by(self):
+        for record in self:
+            if record.type:
+                signatory = self.env['coe.signatories'].search([
+                    ('certificate_type', '=', record.type)
+                ], limit=1)
+                
+                if signatory:
+                    record.certified_by = signatory.signee
+                else:
+                    _logger.info("No signatory found for certificate type %s", record.type)
+                    record.certified_by = False
+            else:
+                record.certified_by = False
 
     # Automate doc_name using ir.sequence
     @api.model
