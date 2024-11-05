@@ -65,37 +65,37 @@ class EmployeeAccountability(models.Model):
                 record.first_name = ''
                 record.last_name = ''
 
-    # @api.onchange('accountability_type')
-    # def _onchange_accountability_type(self):
-    #     for record in self:
-    #         # Set the domain for form_items based on accountability_type
-    #         if record.accountability_type == 'issuance':
-    #             domain = [('issuance', '=', True)]
-    #             # Resetting specific fields in form_items
-    #             for item in record.form_items:
-    #                 item.return_to = False
-    #                 item.date_return = False
-    #                 item.date_issue = False  # Resetting date_issue if needed
-    #                 item.return_to_invi = True
-    #                 item.date_return_invi = True
-    #                 item.date_issued_invi = True
-    #         elif record.accountability_type == 'return':
-    #             domain = [('return', '=', True)]
-    #             # Resetting specific fields in form_items
-    #             for item in record.form_items:
-    #                 item.return_to = False
-    #                 item.date_return = False
-    #                 item.date_issue = False  # Resetting date_issue if needed
-    #                 item.return_to_invi = False
-    #                 item.date_return_invi = False
-    #                 item.date_issued_invi = False
-    #         else:
-    #             domain = []  # No specific domain if no accountability type is selected
-
-    #     # Return the domain to filter the form_items accordingly
-    #     return {'domain': {'form_items': domain}}
-
     @api.onchange('accountability_type')
+    def _onchange_accountability_type(self):
+        for record in self:
+             # Set the domain for form_items based on accountability_type
+             if record.accountability_type == 'issuance':
+                 domain = [('issuance', '=', True)]
+                 # Resetting specific fields in form_items
+                 for item in record.form_items:
+                    item.return_to = False
+                    item.date_return = False
+                    item.date_issue = False  # Resetting date_issue if needed
+                    item.return_to_invi = True
+                    item.date_return_invi = True
+                    item.date_issued_invi = True
+             elif record.accountability_type == 'return':
+                 domain = [('return', '=', True)]
+                # Resetting specific fields in form_items
+                 for item in record.form_items:
+                     item.return_to = False
+                     item.date_return = False
+                     item.date_issue = False  # Resetting date_issue if needed
+                     item.return_to_invi = False
+                     item.date_return_invi = False
+                     item.date_issued_invi = False
+             else:
+                 domain = []  # No specific domain if no accountability type is selected
+
+        # Return the domain to filter the form_items accordingly
+        return {'domain': {'form_items': domain}}
+
+    """ @api.onchange('accountability_type')
     def _onchange_accountability_type(self):
         for record in self:
             domain = []
@@ -119,7 +119,7 @@ class EmployeeAccountability(models.Model):
                     item.date_issued_invi = False
 
         # Return the domain to filter the form_items accordingly
-        return {'domain': {'form_items': domain}}
+        return {'domain': {'form_items': domain}} """
 
 
 
