@@ -88,7 +88,7 @@ class IssuanceTable(models.Model):
     quantity = fields.Integer(string="Quantity") 
     date_issued = fields.Date(string="Date Issued")
     
-class RetrurnTable(models.Model):
+class ReturnTable(models.Model):
     _name = "return.table"
     _description = "Return Table"
     
