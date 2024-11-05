@@ -56,7 +56,7 @@ class CertificateOfEmployment(models.Model):
     others = fields.Text(string="Others", tracking=True)
     from_date = fields.Date(string='From Date', readonly=True, compute='_compute_employee_info', store=True)
     to_date = fields.Date(string='To Date', readonly=True, compute='_compute_employee_info', store=True)
-
+    
     type = fields.Selection([
         ('COE With Basic Salary & Basic Allowance', 'COE With Basic Salary & Basic Allowance'),
         ('COE With Basic Salary, Confidential Allowance and Basic Allowance', 'COE With Basic Salary, Confidential Allowance and Basic Allowance'),
