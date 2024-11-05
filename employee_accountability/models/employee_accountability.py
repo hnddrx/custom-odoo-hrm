@@ -33,18 +33,6 @@ class EmployeeAccountability(models.Model):
         ('issuance', 'Issuance'),
         ('return', 'Return'),
     ], string='Type', required=True, default='issuance')
-    
-    issuance_table = fields.One2many(
-        'issuance.table',
-        'employee_accountability_id',
-        string='Issuance'
-    )
-    
-    return_table = fields.One2many(
-        'return.table',
-        'employee_accountability_id',
-        string='Return'
-    )
 
     # Override create method
     @api.model
@@ -77,26 +65,77 @@ class EmployeeAccountability(models.Model):
                 record.first_name = ''
                 record.last_name = ''
 
+    # @api.onchange('accountability_type')
+    # def _onchange_accountability_type(self):
+    #     for record in self:
+    #         # Set the domain for form_items based on accountability_type
+    #         if record.accountability_type == 'issuance':
+    #             domain = [('issuance', '=', True)]
+    #             # Resetting specific fields in form_items
+    #             for item in record.form_items:
+    #                 item.return_to = False
+    #                 item.date_return = False
+    #                 item.date_issue = False  # Resetting date_issue if needed
+    #                 item.return_to_invi = True
+    #                 item.date_return_invi = True
+    #                 item.date_issued_invi = True
+    #         elif record.accountability_type == 'return':
+    #             domain = [('return', '=', True)]
+    #             # Resetting specific fields in form_items
+    #             for item in record.form_items:
+    #                 item.return_to = False
+    #                 item.date_return = False
+    #                 item.date_issue = False  # Resetting date_issue if needed
+    #                 item.return_to_invi = False
+    #                 item.date_return_invi = False
+    #                 item.date_issued_invi = False
+    #         else:
+    #             domain = []  # No specific domain if no accountability type is selected
 
-class IssuanceTable(models.Model):
-    _name = "issuance.table"
-    _description = "Issuance Table"
-    
-    employee_accountability_id = fields.Many2one('employee.accountability', string="Employee Accountability")
-    item_name = fields.Char(string="Item Name", required=True)
-    item_code = fields.Char(string="Item Code", required=True)  # Fixed typo here
-    quantity = fields.Integer(string="Quantity") 
-    date_issued = fields.Date(string="Date Issued")
-    
-class RetrurnTable(models.Model):
-    _name = "return.table"
-    _description = "Return Table"
-    
-    employee_accountability_id = fields.Many2one('employee.accountability', string="Employee Accountability")
-    item_name = fields.Char(string="Item Name", required=True)
-    item_code = fields.Char(string="Item Code", required=True)  # Fixed typo here
-    quantity = fields.Integer(string="Quantity") 
-    date_issued = fields.Date(string="Date Issued")
-    return_to = fields.Many2one('hr.employee', string="Return To", required=True)
-    date_returned = fields.Date(string="Date Returned", required=True)
-    
+    #     # Return the domain to filter the form_items accordingly
+    #     return {'domain': {'form_items': domain}}
+
+    @api.onchange('accountability_type')
+    def _onchange_accountability_type(self):
+        for record in self:
+            domain = []
+            for item in record.form_items:
+                # Reset fields for both issuance and return
+                item.return_to = False
+                item.date_return = False
+                item.date_issue = False
+
+                if record.accountability_type == 'issuance':
+                    domain = [('issuance', '=', True)]
+                    # Set visibility fields for issuance
+                    item.return_to_invi = True
+                    item.date_return_invi = True
+                    item.date_issued_invi = True
+                elif record.accountability_type == 'return':
+                    domain = [('return', '=', True)]
+                    # Set visibility fields for return
+                    item.return_to_invi = False
+                    item.date_return_invi = False
+                    item.date_issued_invi = False
+
+        # Return the domain to filter the form_items accordingly
+        return {'domain': {'form_items': domain}}
+
+
+
+class DynamicFormItem(models.Model):
+    _name = 'dynamic.form.item'
+    _description = 'Dynamic Form Item'
+
+    main_id = fields.Many2one('employee.accountability', string='ID', ondelete='cascade')
+    accountability_type_rel = fields.Selection(related='main_id.accountability_type', string='Type', store=True)
+    item_name = fields.Char(string='Item Name', required=True)
+    item_code = fields.Char(string='Item Code')
+    quantity = fields.Integer(string='Quantity', default=1)
+    date_issue = fields.Date(string='Date Issued', default=fields.Date.today)
+    return_to = fields.Char(string="Return To")
+    date_return = fields.Date(string='Date Returned')
+
+    return_to_invi = fields.Boolean(default=True)
+    date_return_invi = fields.Boolean(default=True)
+    date_issued_invi = fields.Boolean(default=True)

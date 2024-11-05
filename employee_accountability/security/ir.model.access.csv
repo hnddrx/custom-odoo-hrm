@@ -1,4 +1,3 @@
 id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
 access_employee_accountability,access_employee_accountability,model_employee_accountability,base.group_user,1,1,1,1
-access_issuance_table,access_issuance_table,model_issuance_table,base.group_user,1,1,1,1
-access_return_table,access_return_table,model_return_table,base.group_user,1,1,1,1
+access_dynamic_form_item_user,dynamic.form.item user,model_dynamic_form_item,base.group_user,1,1,1,1
