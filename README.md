@@ -71,4 +71,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ---
 
 This version of the README file provides a clear structure and encourages contributions, making it easier for others to use and understand the project.
+<<<<<<< HEAD
 This version of the README file provides a clear structure and encourages contributions, making it easier for others to use and understand the project.
+=======
+>>>>>>> development

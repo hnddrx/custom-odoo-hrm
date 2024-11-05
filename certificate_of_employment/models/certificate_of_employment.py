@@ -14,16 +14,15 @@ class CertificateOfEmployment(models.Model):
 
     def _get_default_approval_flow(self):
         """Get default data from approval_flow table based on the model and company."""
-        try:
-            _logger.info('Fetching default approval flow for model: certificate_of_employment')
-            return self.env['approval.flow'].search(
-                [('model_apply', '=', 'certificate_of_employment'), 
-                 ('company_id', '=', self.env.company.id)],
-                limit=1
-            )
-        except Exception as e:
-            _logger.error("Error fetching default approval flow: %s", e)
-            return False
+        default_flow = self.env['approval.flow'].search(
+            [('model_apply', '=', 'certificate_of_employment'), 
+            ('company_id', '=', self.env.company.id)],
+            limit=1
+        )
+        if not default_flow:
+            _logger.warning("No default approval flow found for model: certificate_of_employment")
+        return default_flow
+
 
     employee_certificate_id = fields.Many2one("approval.flow", string="Employee Certificate", default=_get_default_approval_flow)
 
@@ -54,8 +53,9 @@ class CertificateOfEmployment(models.Model):
     ], string="Purpose", default='Travel Abroad', tracking=True)
 
     others = fields.Text(string="Others", tracking=True)
-    from_date = fields.Date(string='From Date', compute='_compute_dates', store=True)
-    to_date = fields.Date(string='To Date', compute='_compute_dates', store=True)
+    from_date = fields.Date(string='From Date', readonly=True, compute='_compute_employee_info', store=True)
+    to_date = fields.Date(string='To Date', readonly=True, compute='_compute_employee_info', store=True)
+
     type = fields.Selection([
         ('COE With Basic Salary & Basic Allowance', 'COE With Basic Salary & Basic Allowance'),
         ('COE With Basic Salary, Confidential Allowance and Basic Allowance', 'COE With Basic Salary, Confidential Allowance and Basic Allowance'),
@@ -92,23 +92,25 @@ class CertificateOfEmployment(models.Model):
             _logger.error("Error creating certificate of employment: %s", e)
             raise
 
-    # Compute employee details upon selecting Employee
     @api.depends('employee')
     def _compute_employee_info(self):
         for record in self:
+            employee = record.employee  # cache the employee record
+            if not employee:
+                continue
             try:
-                if record.employee:
-                    record.employee_name = record.employee.s_full_name
-                    record.department = record.employee.department_id.name
-                    record.first_name = record.employee.s_first_name
-                    record.middle_name = record.employee.s_middle_name
-                    record.last_name = record.employee.s_last_name
-                    record.company = record.employee.company_id.name
-                else:
-                    record.employee_name = record.department = record.company = ''
-                    record.first_name = record.middle_name = record.last_name = ''
-            except Exception as e:
-                _logger.error("Error computing employee info for record %s: %s", record.id, e)
+                record.update({
+                    'employee_name': employee.s_full_name or '',
+                    'department': employee.department_id.name or '',
+                    'first_name': employee.s_first_name or '',
+                    'middle_name': employee.s_middle_name or '',
+                    'last_name': employee.s_last_name or '',
+                    'company': employee.company_id.name or '',
+                    'from_date': employee.s_date_hired or '',
+                    'to_date': employee.s_date_of_separation or fields.Date.context_today(record),
+                })
+            except AttributeError as e:
+                _logger.error("Error computing employee info for record ID %s: %s", record.id, e)
 
     @api.depends('status', 'current_stage_id.user_ids')
     def _compute_is_approver_refuse(self):
@@ -145,22 +147,35 @@ class CertificateOfEmployment(models.Model):
     def action_confirm_movement(self):
         for rec in self:
             try:
-                all_stages = self.env['movement.stage'].search(
-                    [('approval_flow_id', '=', rec.employee_certificate_id.id), ('company_id', '=', rec.company_id.id)])
                 if rec.status != 'draft':
-                    raise UserError(_("You cannot approve while its status is not Draft."))
+                    raise UserError(_("Only draft records can be confirmed."))
+
+                all_stages = self.env['movement.stage'].search(
+                    [('approval_flow_id', '=', rec.employee_certificate_id.id), ('company_id', '=', rec.company_id.id)]
+                )
+                if not all_stages:
+                    raise UserError(_("No stages found for the specified approval flow."))
+
+                # Set approver IDs and status based on approval flow type
                 if rec.employee_certificate_id.sequenced:
-                    rec.approver_ids = rec.current_stage_id.user_ids.ids
-                    self.write({'status': 'to_approve', 'current_stage_id': all_stages[0].id})
+                    for stage in all_stages:
+                        rec.write({
+                            'status': 'to_approve',
+                            'current_stage_id': stage.id,
+                            'approver_ids': stage.user_ids.ids
+                        })
                 else:
-                    rec.approver_ids = rec.employee_certificate_id.stage_id.user_ids.ids
-                    self.write({'status': 'to_approve'})
+                    rec.write({
+                        'status': 'to_approve',
+                        'approver_ids': rec.employee_certificate_id.stage_id.user_ids.ids
+                    })
                     for stage in all_stages:
                         stage.write({'status': 'pending'})
-                return True
+
             except Exception as e:
                 _logger.error("Error confirming movement for record %s: %s", rec.id, e)
                 raise
+
 
     def action_approved_movement(self):
         for rec in self:
@@ -201,20 +216,7 @@ class CertificateOfEmployment(models.Model):
                 _logger.error("Error rejecting movement for record %s: %s", rec.id, e)
                 raise
 
-    # Method to compute the dates
-    @api.depends('from_date', 'to_date')
-    def _compute_dates(self):
-        for record in self:
-            try:
-                today = date.today()
-                if record.from_date and record.to_date:
-                    record.from_date = record.from_date
-                    record.to_date = record.to_date
-                else:
-                    record.from_date = today
-                    record.to_date = today
-            except Exception as e:
-                _logger.error("Error computing dates for record %s: %s", record.id, e)
+    
 
     def _compute_stage_id(self):
         for rec in self:

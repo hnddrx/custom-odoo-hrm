@@ -12,6 +12,7 @@
                             <field name="employee" options="{'no_create_edit': True}"/>
                             <field name="first_name" />
                             <field name="last_name" />
+                            <field name="company" />
                         </group>
                         <group>
                             <field name="posting_date" readonly="True"/>

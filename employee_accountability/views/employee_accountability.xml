@@ -37,38 +37,36 @@
                         </group>
                     </group>
                     
-                    <separator string="Issuance" invisible = "accountability_type == 'return' or accountability_type == False" />
-                    <separator string="Return" invisible = "accountability_type == 'issuance' or accountability_type == False"/>
+                    <separator string="Issuance" invisible = "accountability_type == 'return'" />
+                    <separator string="Return" invisible = "accountability_type == 'issuance'"/>
 
                     <!-- One2many Field for Form Items -->
-                    <notebook invisible="accountability_type == False">
+                    <notebook>
                     <page string="Form Items">
                     <group>
-                        <field name="form_items" string="" widget="many2many_list"
+                        <field name="form_items" string="" widget="one2many_list"
                             context="{'form_view_initial_mode': 'edit'}" >
                             <tree editable="bottom">
-                                <field name="date_issued_invi" column_invisible="True"/>
+                                <field name="accountability_type_rel" column_invisible="1"/>
+                                <field name="date_issued_invi" invisible = "accountability_type_rel == 'return'"/>
                                 <field name="item_name"/>
                                 <field name="item_code"/>
-                                <field name="quantity"/>
-                                <field name="date_issue" readonly = "accountability_type == 'issuance' or accountability_type == False" width="10%" />
-                                <field name="return_to" readonly = "accountability_type == 'issuance' or accountability_type == False"  width="20%"/>
-                                <field name="date_return" readonly = "accountability_type == 'issuance' or accountability_type == False" width="10%"/>
-                                <field name="accountability_type"/>
-                              
-                            </tree>
-                            
+                                <field name="quantity" column_invisible = "'accountability_type_rel', '==', 'return'"/>
+                                <field name="date_issue" readonly = "accountability_type_rel == 'return'"/>
+                                <field name="return_to" readonly = "1" column_invisible="1"/>
+                                <field name="date_return" readonly = "1" column_invisible="1"/>
+                            </tree>            
                         </field>
                     </group>
                     </page>
                     </notebook>
-                    
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                    </div>
                 </sheet>
 
-                <div class="oe_chatter">
-                    <field name="message_ids" widget="mail_thread"/>
-                    <field name="activity_ids" widget="mail_activity"/>
-                </div>
+                
             </form>
         </field>
     </record>

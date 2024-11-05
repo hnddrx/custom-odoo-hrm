@@ -9,8 +9,6 @@
                     <group>
                         <group>
                             <field name="doc_name" invisible="1"/>
-                            <field name="offense"/>
-                            <field name="offense_description"/>
                             <field name="incident_location"/>
                             <field name="damage_done"/>
                         </group>
@@ -52,7 +50,6 @@
             <tree string="Incident Report">
                  <field name="doc_name"/> 
                 <field name="posting_date"/>
-                <field name="offense"/>
                 <field name="date_and_time_of_offense" />
             </tree>
         </field>
