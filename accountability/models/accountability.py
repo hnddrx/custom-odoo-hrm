@@ -7,7 +7,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 class EmployeeAccountability(models.Model):
-    _name = 'employee.accountability'
+    _name = 'accountability'
     _description = 'Employee Accountability'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'doc_name'
@@ -23,7 +23,6 @@ class EmployeeAccountability(models.Model):
     )
     first_name = fields.Char(string="First Name", readonly=True, compute='_compute_employee_info', store=True)
     last_name = fields.Char(string="Last Name", readonly=True, compute='_compute_employee_info', store=True)
-    form_items = fields.One2many('dynamic.form.item', 'main_id', string='Form Items')
 
     department = fields.Char(string='Department', readonly=True, compute='_compute_employee_info', store=True)
     company = fields.Char(string='Company', readonly=True, compute='_compute_employee_info', store=True)
@@ -35,15 +34,17 @@ class EmployeeAccountability(models.Model):
     ], string='Type', required=True, default='issuance')
     
     issuance_table = fields.One2many(
-        'issuance.table',
-        'employee_accountability_id',
-        string='Issuance'
+        'issuance',
+        'accountability_id',
+        string = 'Issuance Table'
+        
     )
     
     return_table = fields.One2many(
-        'return.table',
-        'employee_accountability_id',
-        string='Return'
+        'return',
+        'accountability_id',
+        string = 'Return Table'
+        
     )
 
     # Override create method
@@ -77,26 +78,27 @@ class EmployeeAccountability(models.Model):
                 record.first_name = ''
                 record.last_name = ''
 
-
-class IssuanceTable(models.Model):
-    _name = "issuance.table"
-    _description = "Issuance Table"
+class Issuance(models.Model):
+    _name = 'issuance'
+    _description = 'Issuance'
     
-    employee_accountability_id = fields.Many2one('employee.accountability', string="Employee Accountability")
-    item_name = fields.Char(string="Item Name", required=True)
-    item_code = fields.Char(string="Item Code", required=True)  # Fixed typo here
-    quantity = fields.Integer(string="Quantity") 
+    
+    accountability_id = fields.Many2one('accountability', string="Accountability ID")
+    item_name = fields.Char(string="Item Name")
+    item_code = fields.Char(string="Item Code")
+    quantity = fields.Integer(string="Quantity")
     date_issued = fields.Date(string="Date Issued")
     
-class RetrurnTable(models.Model):
-    _name = "return.table"
-    _description = "Return Table"
+class Return(models.Model):
+    _name = 'return'
+    _description = 'Return'
     
-    employee_accountability_id = fields.Many2one('employee.accountability', string="Employee Accountability")
-    item_name = fields.Char(string="Item Name", required=True)
-    item_code = fields.Char(string="Item Code", required=True)  # Fixed typo here
-    quantity = fields.Integer(string="Quantity") 
-    date_issued = fields.Date(string="Date Issued")
-    return_to = fields.Many2one('hr.employee', string="Return To", required=True)
-    date_returned = fields.Date(string="Date Returned", required=True)
+    
+    accountability_id = fields.Many2one('accountability', string="Accountability ID")
+    item_name = fields.Char(string="Item Name")
+    item_code = fields.Char(string="Item Code")
+    quantity = fields.Integer(string="Quantity")
+    date_issued = fields.Date(string="Date Issued") 
+    return_to = fields.Many2one('hr.employee', string='Return To')
+    date_returned = fields.Date( string='Date Returned')
     
