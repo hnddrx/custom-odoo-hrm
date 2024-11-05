@@ -20,6 +20,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/certificate_of_employment.xml',
+        'views/signatories.xml',
         'views/approval_flow.xml',
         'data/certificate_of_employment.xml',
         
