@@ -42,25 +42,28 @@
 
                     <!-- One2many Field for Form Items -->
                     <notebook invisible="accountability_type == False">
-                    <page string="Form Items">
-                    <group>
-                        <field name="form_items" string="" widget="many2many_list"
-                            context="{'form_view_initial_mode': 'edit'}" >
-                            <tree editable="bottom">
-                                <field name="date_issued_invi" column_invisible="True"/>
-                                <field name="item_name"/>
-                                <field name="item_code"/>
-                                <field name="quantity"/>
-                                <field name="date_issue" readonly = "accountability_type == 'issuance' or accountability_type == False" width="10%" />
-                                <field name="return_to" readonly = "accountability_type == 'issuance' or accountability_type == False"  width="20%"/>
-                                <field name="date_return" readonly = "accountability_type == 'issuance' or accountability_type == False" width="10%"/>
-                                <field name="accountability_type"/>
-                              
-                            </tree>
-                            
-                        </field>
-                    </group>
-                    </page>
+                        <page string="Issuance Table" invisible="accountability_type == 'return">
+                            <field name="issuance_table">
+                                <tree editable="bottom">
+                                    <field name="item_name"/>
+                                    <field name="item_code"/>
+                                    <field name="quantity"/>
+                                    <field name="date_issued"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Return Table" invisible="accountability_type == 'issuance">
+                            <field name="return_table">
+                                <tree editable="bottom">
+                                    <field name="item_name"/>
+                                    <field name="item_code"/>
+                                    <field name="quantity"/>
+                                    <field name="date_issued"/>
+                                    <field name="return_to"/>
+                                    <field name="date_returned"/>
+                                </tree>
+                            </field>
+                        </page>
                     </notebook>
                     
                 </sheet>
