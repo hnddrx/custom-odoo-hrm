@@ -23,6 +23,7 @@ class CertificateOfEmployment(models.Model):
             _logger.warning("No default approval flow found for model: certificate_of_employment")
         return default_flow
 
+
     employee_certificate_id = fields.Many2one("approval.flow", string="Employee Certificate", default=_get_default_approval_flow)
 
     # Fields
@@ -98,7 +99,6 @@ class CertificateOfEmployment(models.Model):
             if not employee:
                 continue
             try:
-<<<<<<< HEAD
                 record.update({
                     'employee_name': employee.s_full_name or '',
                     'department': employee.department_id.name or '',
@@ -111,24 +111,10 @@ class CertificateOfEmployment(models.Model):
                 })
             except AttributeError as e:
                 _logger.error("Error computing employee info for record ID %s: %s", record.id, e)
-=======
-                record.employee_name = record.employee.s_full_name or ''
-                record.department = record.employee.department_id.name or ''
-                record.first_name = record.employee.s_first_name or ''
-                record.middle_name = record.employee.s_middle_name or ''
-                record.last_name = record.employee.s_last_name or ''
-                record.company = record.employee.company_id.name or ''
-                record.from_date = record.employee.s_date_hired or fields.Date.context_today(record)
-                record.to_date = record.employee.s_date_of_separation or fields.Date.context_today(record)
-            except Exception as e:
-                _logger.error("Error computing employee info for record %s: %s", record.id, e)
->>>>>>> certificate_of_employment
 
     @api.depends('status', 'current_stage_id.user_ids')
     def _compute_is_approver_refuse(self):
         for rec in self:
-            _logger.debug(f'Debug Record: {rec}')
-
             try:
                 if not rec.employee_certificate_id:
                     default_approval_flow_id = self.env['approval.flow'].search(
@@ -141,11 +127,11 @@ class CertificateOfEmployment(models.Model):
                 all_stages = self.env['movement.stage'].search([('approval_flow_id', '=', rec.employee_certificate_id.id)])
                 user = rec.env.user
                 if rec.employee_certificate_id.sequenced:
-                    """ #rec.approver_id = user """
+                    rec.approver_id = user
                     rec.approver_ids = rec.current_stage_id.user_ids if rec.current_stage_id else rec.employee_certificate_id.stage_id.user_ids
                 elif rec.employee_certificate_id.parallel:
                     if all([stage.status == 'pending' for stage in all_stages]):
-                        """  # rec.approver_id = user """
+                        rec.approver_id = user
                         rec.approver_ids = rec.employee_certificate_id.stage_id.user_ids
                     else:
                         for stage in all_stages:
@@ -230,6 +216,7 @@ class CertificateOfEmployment(models.Model):
                 _logger.error("Error rejecting movement for record %s: %s", rec.id, e)
                 raise
 
+    
 
     def _compute_stage_id(self):
         for rec in self:
