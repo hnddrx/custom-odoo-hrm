@@ -1,3 +1,4 @@
+
 from odoo import models, fields, api, _
 from odoo.tools.safe_eval import safe_eval
 from odoo.exceptions import ValidationError, UserError
@@ -11,6 +12,13 @@ class CertificateOfEmployment(models.Model):
     _description = 'Certificate of Employment'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'doc_name'  # Use the doc_name field as the display name
+    
+    
+    TYPE_SELECTION = [
+        ('COE With Basic Salary & Basic Allowance', 'COE With Basic Salary & Basic Allowance'),
+        ('COE With Basic Salary, Confidential Allowance and Basic Allowance', 'COE With Basic Salary, Confidential Allowance and Basic Allowance'),
+        ('Without Compensation', 'Without Compensation'),
+    ]
 
     def _get_default_approval_flow(self):
         """Get default data from approval_flow table based on the model and company."""
@@ -36,8 +44,7 @@ class CertificateOfEmployment(models.Model):
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company, store=True)
     company = fields.Char(string='Company', readonly=True, compute='_compute_employee_info', store=True)
     department = fields.Char(string='Department', readonly=True, compute='_compute_employee_info', store=True)
-    certified_by = fields.Many2one('hr.employee', string='Certified By', tracking=True)
-
+    certified_by = fields.Many2one('hr.employee', string='Certified By', compute='_compute_certified_by', store=True, readonly=False)
     # Selection fields
     purpose = fields.Selection([
         ('Travel Abroad', 'Travel Abroad'),
@@ -55,12 +62,8 @@ class CertificateOfEmployment(models.Model):
     others = fields.Text(string="Others", tracking=True)
     from_date = fields.Date(string='From Date', readonly=True, compute='_compute_employee_info', store=True)
     to_date = fields.Date(string='To Date', readonly=True, compute='_compute_employee_info', store=True)
-
-    type = fields.Selection([
-        ('COE With Basic Salary & Basic Allowance', 'COE With Basic Salary & Basic Allowance'),
-        ('COE With Basic Salary, Confidential Allowance and Basic Allowance', 'COE With Basic Salary, Confidential Allowance and Basic Allowance'),
-        ('Without Compensation', 'Without Compensation'),
-    ], string="Type", tracking=True)
+    
+    type = fields.Selection(TYPE_SELECTION, string="Type", tracking=True)
 
     # Date fields
     posting_date = fields.Date(string='Posting Date', default=fields.Date.context_today, readonly=True)
@@ -73,6 +76,7 @@ class CertificateOfEmployment(models.Model):
     stage_id = fields.Many2one("movement.stage", string="Stage", compute='_compute_stage_id',
                                groups="advanced_movement.group_manager")
     current_stage_id = fields.Many2one('movement.stage', string='Current Stage', groups="advanced_movement.group_user")
+
     status = fields.Selection([
         ('draft', 'Draft'),
         ('to_submit', 'Submit'),
@@ -80,6 +84,28 @@ class CertificateOfEmployment(models.Model):
         ('reject', 'Rejected'),
         ('approved', 'Approved')
     ], string="Status", default="draft", required=True, readonly=True, tracking=True)
+    
+    @api.model
+    def get_type_selection(self):
+        """Return the selection options for type as a list of tuples."""
+        return self.TYPE_SELECTION
+    
+    
+    @api.depends('type')
+    def _compute_certified_by(self):
+        for record in self:
+            if record.type:
+                signatory = self.env['coe.signatories'].search([
+                    ('certificate_type', '=', record.type)
+                ], limit=1)
+                
+                if signatory:
+                    record.certified_by = signatory.signee
+                else:
+                    _logger.info("No signatory found for certificate type %s", record.type)
+                    record.certified_by = False
+            else:
+                record.certified_by = False
 
     # Automate doc_name using ir.sequence
     @api.model
@@ -111,38 +137,38 @@ class CertificateOfEmployment(models.Model):
                 })
             except AttributeError as e:
                 _logger.error("Error computing employee info for record ID %s: %s", record.id, e)
-
+    
     @api.depends('status', 'current_stage_id.user_ids')
     def _compute_is_approver_refuse(self):
         for rec in self:
-            try:
+            if not rec.employee_certificate_id: 
+                default_approval_flow_id = self.env['approval.flow'].search([('model_apply', '=', 'certificate_of_employment'), ('company_id', '=', rec.env.company.id)], limit=1)
+                rec.employee_certificate_id = default_approval_flow_id if default_approval_flow_id else False
                 if not rec.employee_certificate_id:
-                    default_approval_flow_id = self.env['approval.flow'].search(
-                        [('model_apply', '=', 'certificate_of_employment'), 
-                         ('company_id', '=', rec.env.company.id)], limit=1)
-                    rec.employee_certificate_id = default_approval_flow_id.id if default_approval_flow_id else False
-                    if not rec.employee_certificate_id:
-                        raise UserError(_("Approval Flow not set, please set it before creating a record."))
-
-                all_stages = self.env['movement.stage'].search([('approval_flow_id', '=', rec.employee_certificate_id.id)])
-                user = rec.env.user
-                if rec.employee_certificate_id.sequenced:
+                    raise UserError(_("Approval Flow not set, please set approval flow before creating a record."))
+                
+            all_stages = self.env['movement.stage'].search([('approval_flow_id', '=', rec.employee_certificate_id.id)])
+            user = rec.env.user
+            if rec.employee_certificate_id.sequenced:
+                rec.approver_id = user
+                rec.approver_ids = rec.employee_certificate_id.stage_id.user_ids
+            elif rec.employee_certificate_id.parallel:
+                if all([stage.status == 'pending' for stage in all_stages]):
                     rec.approver_id = user
-                    rec.approver_ids = rec.current_stage_id.user_ids if rec.current_stage_id else rec.employee_certificate_id.stage_id.user_ids
-                elif rec.employee_certificate_id.parallel:
-                    if all([stage.status == 'pending' for stage in all_stages]):
-                        rec.approver_id = user
-                        rec.approver_ids = rec.employee_certificate_id.stage_id.user_ids
-                    else:
-                        for stage in all_stages:
-                            if stage.status == 'approved':
-                                if rec.approver_ids in rec.employee_certificate_id.stage_id.filtered(lambda x: x.status == 'approved').user_ids.ids:
-                                    rec.approver_ids = [(3, rec.employee_certificate_id.stage_id.filtered(lambda x: x.status == 'approved').user_ids.ids)]
+                    rec.approver_ids = rec.employee_certificate_id.stage_id.user_ids
+                else:
+                    for stage in all_stages:
+                        if stage.status == 'approved':
+                            if rec.approver_ids in rec.employee_certificate_id.stage_id.filtered(lambda emp_stage: emp_stage.status == 'approved').user_ids.ids:
+                                rec.approver_ids = [(3, rec.employee_certificate_id.stage_id.filtered(lambda emp_stage: emp_stage.status == 'approved').user_ids.ids)]
                             else:
                                 rec.approver_ids = stage.user_ids
-                rec.is_approver = not (rec.status == 'to_approve' and user in rec.approver_ids)
-            except Exception as e:
-                _logger.error("Error computing approver status for record %s: %s", rec.id, e)
+            
+            if rec.status == 'to_approve' and user in rec.approver_ids:
+                rec.is_approver = False
+            else:
+                rec.is_approver = True
+                    
 
     def action_confirm_movement(self):
         for rec in self:
@@ -230,3 +256,22 @@ class CertificateOfEmployment(models.Model):
                 _logger.error("Error computing stage ID for record %s: %s", rec.id, e)
 
     # Define any other necessary methods with logging
+    
+    
+    
+""" Model for Certificate of employement signatories """
+class CoeSignatories(models.Model):
+    _name = 'coe.signatories'
+    _description = 'Certificate of Employment Signatories'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    #fields
+    certificate_type = fields.Selection(
+        selection=lambda self: self.env['certificate.of.employment'].get_type_selection(),
+        string='Certificate Type',
+        required=True,
+        tracking=True
+    )
+    signee = fields.Many2one('hr.employee' ,string='Signee', required=True, tracking=True)
+    
+    

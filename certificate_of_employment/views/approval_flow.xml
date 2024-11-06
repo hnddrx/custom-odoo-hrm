@@ -79,15 +79,23 @@
 
 
     <menuitem id="menu_employment_certificate_approval_flow_root"
-              name="Approval Flow"
+              name="Configuration"
             parent="menu_certificate_of_employment_child"
     />
 
-9
     <menuitem id="action_approval_certificate_of_employment_flow_id"
               name="Approval Flow"
               action="action_approval_certificate_of_employment_flow"
               parent="menu_employment_certificate_approval_flow_root"
     /> 
+
+    
+    <menuitem id="action_signatories_certificate_of_employment_id"
+              name="Certificate of Employment Signatories"
+              action="action_coe_signatories_tree"
+              parent="menu_employment_certificate_approval_flow_root"
+    /> 
+
+
 
 </odoo>

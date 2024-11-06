@@ -37,10 +37,6 @@
                         </group>
                     </group>
                     
-                    <separator string="Issuance" invisible = "accountability_type == 'return'" />
-                    <separator string="Return" invisible = "accountability_type == 'issuance'"/>
-
-                    <!-- One2many Field for Form Items -->
                     <notebook>
                         <page string="Issuance Table" invisible = "accountability_type == 'return'" >
                             <field name="issuance_table">
