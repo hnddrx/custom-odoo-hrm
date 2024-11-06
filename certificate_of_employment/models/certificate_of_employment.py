@@ -76,6 +76,7 @@ class CertificateOfEmployment(models.Model):
     stage_id = fields.Many2one("movement.stage", string="Stage", compute='_compute_stage_id',
                                groups="advanced_movement.group_manager")
     current_stage_id = fields.Many2one('movement.stage', string='Current Stage', groups="advanced_movement.group_user")
+
     status = fields.Selection([
         ('draft', 'Draft'),
         ('to_submit', 'Submit'),
@@ -136,38 +137,38 @@ class CertificateOfEmployment(models.Model):
                 })
             except AttributeError as e:
                 _logger.error("Error computing employee info for record ID %s: %s", record.id, e)
-
+    
     @api.depends('status', 'current_stage_id.user_ids')
     def _compute_is_approver_refuse(self):
         for rec in self:
-            try:
+            if not rec.employee_certificate_id: 
+                default_approval_flow_id = self.env['approval.flow'].search([('model_apply', '=', 'certificate_of_employment'), ('company_id', '=', rec.env.company.id)], limit=1)
+                rec.employee_certificate_id = default_approval_flow_id if default_approval_flow_id else False
                 if not rec.employee_certificate_id:
-                    default_approval_flow_id = self.env['approval.flow'].search(
-                        [('model_apply', '=', 'certificate_of_employment'), 
-                         ('company_id', '=', rec.env.company.id)], limit=1)
-                    rec.employee_certificate_id = default_approval_flow_id.id if default_approval_flow_id else False
-                    if not rec.employee_certificate_id:
-                        raise UserError(_("Approval Flow not set, please set it before creating a record."))
-
-                all_stages = self.env['movement.stage'].search([('approval_flow_id', '=', rec.employee_certificate_id.id)])
-                user = rec.env.user
-                if rec.employee_certificate_id.sequenced:
-                    """ rec.approver_id = user """
-                    rec.approver_ids = rec.current_stage_id.user_ids if rec.current_stage_id else rec.employee_certificate_id.stage_id.user_ids
-                elif rec.employee_certificate_id.parallel:
-                    if all([stage.status == 'pending' for stage in all_stages]):
-                        """ rec.approver_id = user """
-                        rec.approver_ids = rec.employee_certificate_id.stage_id.user_ids
-                    else:
-                        for stage in all_stages:
-                            if stage.status == 'approved':
-                                if rec.approver_ids in rec.employee_certificate_id.stage_id.filtered(lambda x: x.status == 'approved').user_ids.ids:
-                                    rec.approver_ids = [(3, rec.employee_certificate_id.stage_id.filtered(lambda x: x.status == 'approved').user_ids.ids)]
+                    raise UserError(_("Approval Flow not set, please set approval flow before creating a record."))
+                
+            all_stages = self.env['movement.stage'].search([('approval_flow_id', '=', rec.employee_certificate_id.id)])
+            user = rec.env.user
+            if rec.employee_certificate_id.sequenced:
+                rec.approver_id = user
+                rec.approver_ids = rec.employee_certificate_id.stage_id.user_ids
+            elif rec.employee_certificate_id.parallel:
+                if all([stage.status == 'pending' for stage in all_stages]):
+                    rec.approver_id = user
+                    rec.approver_ids = rec.employee_certificate_id.stage_id.user_ids
+                else:
+                    for stage in all_stages:
+                        if stage.status == 'approved':
+                            if rec.approver_ids in rec.employee_certificate_id.stage_id.filtered(lambda emp_stage: emp_stage.status == 'approved').user_ids.ids:
+                                rec.approver_ids = [(3, rec.employee_certificate_id.stage_id.filtered(lambda emp_stage: emp_stage.status == 'approved').user_ids.ids)]
                             else:
                                 rec.approver_ids = stage.user_ids
-                rec.is_approver = not (rec.status == 'to_approve' and user in rec.approver_ids)
-            except Exception as e:
-                _logger.error("Error computing approver status for record %s: %s", rec.id, e)
+            
+            if rec.status == 'to_approve' and user in rec.approver_ids:
+                rec.is_approver = False
+            else:
+                rec.is_approver = True
+                    
 
     def action_confirm_movement(self):
         for rec in self:
