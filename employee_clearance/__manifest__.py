@@ -5,11 +5,10 @@
     'author': 'Wren',
     'depends': ['base','web','hr'],
     'data': [
-            'security/ir.model.access.csv',
-            'views/employee_clearance.xml',
-            'data/employee_clearance.xml',
+        'security/ir.model.access.csv',
+        'views/employee_clearance.xml',
+        'data/employee_clearance.xml',
     ],
-    
     'installable': True,
     'application': True,
     'auto_install': False,
