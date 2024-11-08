@@ -107,9 +107,9 @@ class Return(models.Model):
     _description = 'Return'
 
     accountability_id = fields.Many2one('accountability', string="Accountability ID")
-    item_name = fields.Char(string="Item Name")
-    item_code = fields.Char(string="Item Code")
+    item_name = fields.Char(string="Item Name", readonly=True)
+    item_code = fields.Char(string="Item Code", readonly=True)
     quantity = fields.Integer(string="Quantity")
-    date_issued = fields.Date(string="Date Issued")
+    date_issued = fields.Date(string="Date Issued", readonly=True)
     return_to = fields.Many2one('hr.employee', string='Return To')
     date_returned = fields.Date(string='Date Returned')

@@ -6,7 +6,7 @@
         <field name="model">accountability</field>
         <field name="arch" type="xml">
             <tree string="Employee Accountability Records">
-                 <field name="doc_name"/>
+                <field name="doc_name"/>
                 <field name="employee"/>
                 <field name="accountability_type"/> 
                 <field name="posting_date"/>
