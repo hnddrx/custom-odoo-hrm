@@ -80,5 +80,5 @@
     </record>
 
     <!-- Menu -->
-s    <menuitem id="menu_notice_to_explain" name="Notice to Explain" action="notice_to_explain_action" sequence="10" web_icon="notice_explain,static/src/description/notice.png" />
+    <menuitem id="menu_notice_to_explain" name="Notice to Explain" action="notice_to_explain_action" sequence="10" web_icon="notice_explain,static/src/description/notice.png" />
 </odoo>
