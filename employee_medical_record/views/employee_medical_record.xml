@@ -78,9 +78,10 @@
               web_icon="employee_medical_record,static/src/description/medical.png"/>
 
     <menuitem id="menu_medical_type" 
-              name="Medical Type"
-              parent="menu_employee_medical_record"
-              action="employee_medical_record.action_medical_type"
-              sequence="20"/>
+            name="Medical Type" 
+            parent="menu_employee_medical_record" 
+            action="employee_medical_record.action_medical_type" 
+            sequence="20"/>
+
   
 </odoo>
