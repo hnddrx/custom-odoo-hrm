@@ -18,8 +18,7 @@
                             <field name="employee"/>
                         </group>
                         <group>
-                            <field name="attachment_filename" invisible="1"/>
-                            <field name="attachment" filename="attachment_filename"/>  
+                            <field name="attachment_ids" widget="many2many_binary" options="{'no_create': True}"/> 
                             <field name="remarks"/>
                         </group>
                     </group>
