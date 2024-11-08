@@ -22,8 +22,12 @@ class NoticeToExplain(models.Model):
     employee = fields.Many2one('hr.employee',string=_('Employee'), required=True)
     employee_name = fields.Char(string=_('Employee Name'), readonly=True, compute='_compute_employee_name', store=True)
     
-    attachment = fields.Binary(string="Attachment")
-    attachment_filename = fields.Char(string="Attachment Filename")
+    
+    attachment_ids = fields.Many2many(
+        'ir.attachment', 
+        string="Attachments", 
+        help="Attachments related to this document"
+    )
 
     remarks = fields.Text(string=_("Explanation"))
     
@@ -48,26 +52,12 @@ class NoticeToExplain(models.Model):
     def action_reset_draft(self):
         self.write({'status': 'draft'})
         
-    @api.onchange('attachment')
-    def _onchange_attachment(self):
-        """Automatically save attachment to ir.attachment and assign a filename."""
-        if self.attachment:
-            # Delete any existing attachment for this record
-            existing_attachment = self.env['ir.attachment'].search([
-                ('res_model', '=', self._name),
-                ('res_id', '=', self.id),
-                ('name', '=', self.attachment_filename)
-            ])
-            existing_attachment.unlink()
-
-            # Create a new attachment in ir.attachment
-            attachment_data = {
-                'name': self.attachment_filename or 'Uploaded_File.pdf',  # Use provided filename or default
-                'type': 'binary',
-                'datas': self.attachment,
-                'res_model': self._name,
-                'res_id': self.id,
-            }
-            self.env['ir.attachment'].create(attachment_data)
+            
+    @api.onchange('attachment_ids')
+    def _onchange_attachment_ids(self):
+        """Automatically handle attachment upload and associate it with this record."""
+        for attachment in self.attachment_ids:
+            attachment.res_model = self._name
+            attachment.res_id = self.id
 
     
