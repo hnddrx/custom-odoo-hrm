@@ -39,9 +39,8 @@ class EmployeeMedicalRecords(models.Model):
 
     @api.model
     def create(self, vals):
-        # Generate sequence for the document name
         if vals.get('doc_name', 'New') == 'New':
-            vals['doc_name'] = self.env['ir.sequence'].next_by_code('employee.medical.records') or 'New'
+            vals['doc_name'] = self.env['ir.sequence'].next_by_code('employee.medical.record') or '/'
         return super(EmployeeMedicalRecords, self).create(vals)
     
     
@@ -66,4 +65,11 @@ class EmployeeMedicalRecords(models.Model):
                 record.show_other_type = False
                 _logger.info('Show Other Type',record.show_other_type)
                 
+class MedicalType (models.Model):
+    _name = 'medical.type'
+    _description = 'Medical Type'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    
+    name = fields.Char(string='Medical Type', required=True)
+    description = fields.Char(string='Description')
 

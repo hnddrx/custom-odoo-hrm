@@ -47,4 +47,16 @@
         </field>
     </record>
     
+
+    <menuitem id="employee_medical_record_root"
+              name="Settings"
+            parent="menu_employee_medical_record"
+    />
+
+    <menuitem id="menu_medical_type"
+              name="Medical Type"
+              action="action_medical_type"
+              parent="employee_medical_record_root"
+    />
+
 </odoo>
