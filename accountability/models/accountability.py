@@ -13,6 +13,7 @@ class EmployeeAccountability(models.Model):
     _rec_name = 'doc_name'
 
     # Fields
+    test_docname = fields.Char(string="Document Name", readonly=True, default='New', copy=False)
     doc_name = fields.Char(string="Document Name", readonly=True, default='New', copy=False)
     employee = fields.Many2one(
         'hr.employee',
