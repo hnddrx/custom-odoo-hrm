@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <form string="Notice to Explain">
                 <header>
+                    <div class="js_template_using_owl_nte"></div>
                     <button name="action_submit" type="object" string="Submit" 
                     invisible="status != 'draft'"/>
                     <button name="action_reset_draft" type="object" string="Reset to Draft" invisible="status != 'submitted'"/>
