@@ -1,7 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.tools.safe_eval import safe_eval
 from odoo.exceptions import ValidationError, UserError
-from datetime import date
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -18,7 +16,7 @@ class EmployeeAccountability(models.Model):
         'hr.employee',
         string="Employee",
         required=True,
-        context={'no_create': True}  # This prevents creating new employees
+        context={'no_create': True}
     )
     first_name = fields.Char(string="First Name", readonly=True, compute='_compute_employee_info', store=True)
     last_name = fields.Char(string="Last Name", readonly=True, compute='_compute_employee_info', store=True)
@@ -80,16 +78,28 @@ class EmployeeAccountability(models.Model):
             ], limit=1, order='posting_date desc')
 
             if last_issuance:
-                # Clear current return table and populate it with issuance items
+                # Clear current return table and populate it with items that still have remaining quantities
                 self.return_table = [(5, 0, 0)]
                 return_entries = []
+                
                 for issuance in last_issuance.issuance_table:
-                    return_entries.append((0, 0, {
-                        'item_name': issuance.item_name,
-                        'item_code': issuance.item_code,
-                        'quantity': issuance.quantity,
-                        'date_issued': issuance.date_issued,
-                    }))
+                    # Calculate the total returned quantity for this item
+                    returned_quantity = sum(self.env['return'].search([
+                        ('accountability_id.employee', '=', self.employee.id),
+                        ('item_name', '=', issuance.item_name)
+                    ]).mapped('quantity'))
+                    
+                    # Calculate remaining quantity
+                    remaining_quantity = issuance.quantity - returned_quantity
+
+                    if remaining_quantity > 0:
+                        return_entries.append((0, 0, {
+                            'item_name': issuance.item_name,
+                            'item_code': issuance.item_code,
+                            'quantity': remaining_quantity,
+                            'date_issued': issuance.date_issued,
+                        }))
+
                 self.return_table = return_entries
 
 class Issuance(models.Model):
@@ -107,9 +117,9 @@ class Return(models.Model):
     _description = 'Return'
 
     accountability_id = fields.Many2one('accountability', string="Accountability ID")
-    item_name = fields.Char(string="Item Name", readonly=True)
-    item_code = fields.Char(string="Item Code", readonly=True)
+    item_name = fields.Char(string="Item Name")
+    item_code = fields.Char(string="Item Code")
     quantity = fields.Integer(string="Quantity")
-    date_issued = fields.Date(string="Date Issued", readonly=True)
+    date_issued = fields.Date(string="Date Issued")
     return_to = fields.Many2one('hr.employee', string='Return To')
     date_returned = fields.Date(string='Date Returned')

@@ -24,11 +24,11 @@
         'security/ir.model.access.csv',
         'data/notice_to_explain_data.xml'
     ],
-    "assets":{
+    """ "assets":{
         "web.assets_backend":[
             'notice_to_explain/static/src/js/owl_component_nte.js'
         ]
-    },
+    }, """
     'installable': True,
     'application': True,
     'auto_install': False,

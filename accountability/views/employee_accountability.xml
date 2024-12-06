@@ -108,10 +108,10 @@
         <field name="view_mode">tree,kanban,form</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
-                Create a New Employee Accountability.
+               Use this interface to log and manage all accountability records. Click "New" to create a new entry.
             </p>
         </field>
     </record>
     <!-- Menu Item to Access the Model -->
-    <menuitem id="menu_employee_accountability" name="Employee Accountability" action="action_accountability"  web_icon="employee_accountability,static/src/description/accountability.png"/>
+    <menuitem id="menu_employee_accountability" name="Employee Accountability" action="action_accountability"  web_icon="accountability,static/src/image/accountability (2).png"/>
 </odoo>
