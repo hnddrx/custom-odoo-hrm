@@ -6,29 +6,118 @@
         <field name="arch" type="xml">
             <form string="Certificate of Employment" create="false">
                 <header>
-                    <group>
-                        <group>
-                            <field name="employee_certificate_id" invisible="0" force_save="1"/>
-                            <field name="approver_id" invisible="0"/>
+                    <div class="oe_header oe_background oe_padding">
+                        <!-- Workflow and Approval Flow -->
+                        <group class="oe_inline">
+                            <!-- Hidden Fields -->
+                            <field name="work_flow" widget="many2one" placeholder="Select Workflow" invisible="1"/>
+                            <field name="module_approval_flow" invisible="1">
+                                <tree editable="bottom">
+                                    <field name="module_approver_name" 
+                                        widget="many2one" 
+                                        options="{'no_create': True}" 
+                                        placeholder="Approver Name" />
+                                    <field name="module_approver_email" 
+                                        widget="email" 
+                                        placeholder="Approver Email" />
+                                    <field name="module_approval_status" 
+                                        placeholder="Approval Status"/>
+                                    <field name="module_doc_status" />
+                                    <field name="module_approval_sequence" 
+                                        placeholder="Approval Sequence"/>
+                                    <field name="module_approval_date" 
+                                        widget="datetime" 
+                                        placeholder="Approval Date"/>
+                                    <field name="module_approval_confirmed" 
+                                        widget="boolean"/>
+                                </tree>
+                            </field>
+                            <field name="can_approve" invisible="1"/>
+                            <field name="can_reject" invisible="1"/>
+                            <field name="can_cancel" invisible="1"/>
+                            <field name="current_sequence" invisible="1"/>
+                            <field name="current_docstatus" invisible="1" />  
                         </group>
-                        <group>
-                                <field name="is_approver" invisible="0"/>
-                                <field name="company_id" invisible="0"/>
-                        </group>
-                    </group>
-                    <group>
-                        <field name="approver_ids" invisible="0"/>
-                    </group>
-                   
-                    <div class="js_template_using_owl"></div>
-                    <button string="Submit" name="action_confirm_movement" type="object" class="oe_highlight"
-                            invisible="status != 'draft'" groups="advanced_movement.group_user"/>
-                    <button string="Approve" name="action_approved_movement" type="object" class="oe_highlight"
-                            invisible="is_approver == True"/>
-                    <field name="status" widget="badge" invisible="1" decoration-info="status == 'to_approve'"
-                           decoration-warning="status == 'reject'" decoration-success="status == 'approved'"/>
-                    <field name="current_stage_id" widget="statusbar"
-                               domain="[('approval_flow_id', '!=', False), ('approval_flow_id', '=', employee_certificate_id),('company_id', '=', company_id)]"/>
+                        <!-- Action Buttons and Status -->
+                        <div style="width: 100%; max-width: 2000px; margin: auto;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px;">
+                                
+                                <!-- Buttons Section -->
+                                <div style="display: flex; gap: 10px;">
+                                    <!-- Submit Button -->
+                                    <button name="action_submit" 
+                                            string="Submit" 
+                                            type="object" 
+                                            class="btn btn-primary" 
+                                            icon="fa-paper-plane" 
+                                            invisible="status != 'Draft'" 
+                                            style="padding: 8px 16px; font-size: 14px; border-radius: 4px;">
+                                    </button>
+                                    
+                                    <!-- Approve Button -->
+                                    <button name="action_approve" 
+                                            string="Approve" 
+                                            type="object" 
+                                            class="btn btn-success" 
+                                            icon="fa-check-circle" 
+                                            invisible="not can_approve or current_docstatus not in (1, 2)"
+                                            style="padding: 8px 16px; font-size: 14px; border-radius: 4px;">
+                                    </button>
+
+                                    <!-- Reject Button -->
+                                    <button name="action_reject"
+                                            string="Reject"
+                                            type="object"
+                                            class="btn btn-warning"
+                                            icon="fa-times-circle"
+                                            invisible="not can_reject or status == 'Rejected'"
+                                            style="padding: 8px 16px; font-size: 14px; border-radius: 4px;">
+                                    </button>
+
+                                    <!-- Cancel Button -->
+                                    <button name="action_cancel"
+                                            string="Cancel"
+                                            type="object"
+                                            class="btn btn-danger"
+                                            icon="fa-times-circle"
+                                            invisible="not can_cancel or status == 'Cancelled'"
+                                            style="padding: 8px 16px; font-size: 14px; border-radius: 4px;">
+                                    </button>
+                                </div>
+                                <!-- Status Badge -->
+                                <div>
+                                    <!-- <button name="action_generate_report_url" 
+                                            invisible="current_docstatus != 2"
+                                            type="object"
+                                            help="Click here to print Certificate of Employment."
+                                            style="background: linear-gradient(135deg, #ff6f61, #ff3c3c); 
+                                                border: none; 
+                                                margin-left:20px;
+                                                border-radius: 8px; 
+                                                padding: 10px 15px; 
+                                                cursor: pointer; 
+                                                color: white; 
+                                                font-size: 16px; 
+                                                display: inline-flex; 
+                                                align-items: center; 
+                                                justify-content: center;">
+                                        <span class="fa fa-file-pdf-o" style="font-size: 18px;"></span>
+                                    </button>
+                                    -->
+                                    <field name="status" 
+                                        widget="badge" 
+                                        decoration-info="current_docstatus == 1" 
+                                        decoration-success="current_docstatus == 2"
+                                        decoration-warning="current_docstatus == 3"
+                                        decoration-danger="current_docstatus == 4"
+                                        style="font-size: 14px; font-weight: bold; padding: 6px 12px; border-radius: 4px;">
+                                    </field>
+                                </div>
+                                
+                            </div>
+                                
+                        </div>
+                    </div>
                 </header>
                 <sheet>
                     <group>
@@ -42,7 +131,7 @@
                         </group>
                         <group>
                             <field name="posting_date" widget="date"/>
-                            <field name="company"/>
+                            <field name="company_id"/>
                             <field name="from_date" class="o_custom_from_date" />
                             <field name="to_date" class="o_custom_to_date" /> 
                         </group>
@@ -120,12 +209,11 @@
         </field>
     </record>
 
+    <!-- Print formatdaw -->
+
     <menuitem id="menu_certificate_of_employment_child" 
         name="Certificate of Employment" 
         action="action_certificate_of_employment_tree" 
         sequence="10"
         web_icon="certificate_of_employment,static/src/description/coe.png"/>
-
-    
-
 </odoo>
