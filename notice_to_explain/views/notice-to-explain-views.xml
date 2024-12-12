@@ -16,7 +16,7 @@
                         <group>
                             <field name="status" readonly="1"/>
                             <field name="incident_report"/>
-                            <field name="employee"/>
+                            <field name="employee" required="1"/>
                         </group>
                         <group>
                             <field name="attachment_ids" widget="many2many_binary" options="{'no_create': True}"/> 

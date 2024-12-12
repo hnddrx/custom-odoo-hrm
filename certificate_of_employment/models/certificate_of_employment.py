@@ -30,6 +30,7 @@ class CertificateOfEmployment(models.Model):
     company_id = fields.Many2one('res.company', string='Company', compute='_compute_employee_info', store=True)
     department = fields.Char(string='Department', readonly=True, compute='_compute_employee_info', store=True)
     certified_by = fields.Many2one('hr.employee', string='Certified By', compute='_compute_certified_by', store=True, readonly=False)
+    employee_category = fields.Char(string='Employee Category', compute='_compute_employee_info', store=True)
     # Selection fields
     purpose = fields.Selection([
         ('Travel Abroad', 'Travel Abroad'),
@@ -204,12 +205,8 @@ class CertificateOfEmployment(models.Model):
             )
             
             record.work_flow = workflow.id if workflow else False
-
-
     
     """ End of workflow setup """
-    
-    
     
     @api.depends('type')
     def _compute_certified_by(self):
@@ -269,6 +266,7 @@ class CertificateOfEmployment(models.Model):
                     'company_id': employee.company_id.id or '',
                     'from_date': employee.s_date_hired or '',
                     'to_date': employee.s_date_of_separation or fields.Date.context_today(record),
+                    'employee_category': employee.x_employeecategory_ or ''
                 })
             except AttributeError as e:
                 _logger.error("Error computing employee info for record ID %s: %s", record.id, e)

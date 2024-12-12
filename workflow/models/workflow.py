@@ -45,6 +45,8 @@ class Workflow(models.Model):
         string='Approval Table'
     )
     
+    employee_category = fields.Selection(string="Employee Category", selection=[('office staff','OFFICE STAFF'),('promodiser','PROMODISER'),('crew','CREW'),('driver/helper/maintenance','DRIVER/HELPER/MAINTENANCE'),('production','PRODUCTION')])
+    
     @api.model
     def _get_available_modules(self):
         """Fetch installed modules for the selection field."""
@@ -68,7 +70,7 @@ class Approvals(models.Model):
         required=True,
         domain="[('company_id', '=', workflow_id.company), ('active', '=', true)]"
     )
-   
+
     sequence_status = fields.Many2one(
         'docstatus',
         string='Approval Status',
@@ -80,6 +82,7 @@ class Approvals(models.Model):
         required=True
     )
 
+    
     doc_status = fields.Integer(
         string="Docstatus", 
         compute='_get_doc_status',

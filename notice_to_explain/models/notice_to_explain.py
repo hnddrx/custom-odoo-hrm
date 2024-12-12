@@ -15,11 +15,11 @@ class NoticeToExplain(models.Model):
     doc_name = fields.Char(string="Name", readonly=True, default='New')
     
     # Many2one relationship field
-    incident_report = fields.Many2one('incident.report', string=_('Incident Report'),required=True)
+    incident_report = fields.Many2one('incident.report', string=_('Incident Report'), required=True)
     """  incident_report_description = fields.Text(string='Description', readonly=True) """
     
 
-    employee = fields.Many2one('hr.employee',string=_('Employee'), required=True)
+    employee = fields.Many2one('hr.employee', string=_('Employee'), required=True)
     employee_name = fields.Char(string=_('Employee Name'), readonly=True, compute='_compute_employee_name', store=True)
     
     
@@ -40,7 +40,16 @@ class NoticeToExplain(models.Model):
     def create(self, vals):
         """Generate document name sequence during creation."""
         if vals.get('doc_name', 'New') == 'New':
-            vals['doc_name'] = self.env['ir.sequence'].next_by_code('notice.to.explain') or 'New'
+                sequence_code = 'notice.to.explain'
+                company_id = self.env.company.id  # Current company
+                # Fetch the correct sequence for the current company
+                sequence = self.env['ir.sequence'].sudo().search([
+                    ('code', '=', sequence_code)
+                ], limit=1)
+                if sequence:
+                    vals['doc_name'] = sequence.next_by_id()
+                else:
+                    vals['doc_name'] = '/'  # Fallback if no sequence is found
         return super(NoticeToExplain, self).create(vals)
     
     

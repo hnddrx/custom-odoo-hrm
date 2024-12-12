@@ -34,6 +34,12 @@
                                 options="{'no_create': True}" 
                                 string="Company" 
                                 class="o_field_company"/>
+                            <field name="employee_category"
+                                placeholder="Select employee category"
+                                widget="selection"
+                                class="o_field_category"
+                            />
+                                
                         </group>
 
                         <!-- Action Flow and Active Status -->

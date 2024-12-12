@@ -127,6 +127,7 @@
                                 <field name="first_name" readonly="1"/>
                                 <field name="middle_name" readonly="1"/>
                                 <field name="last_name" readonly="1"/>
+                                <field name="employee_category" readonly="1" />
                             </group>
                         </group>
                         <group>
@@ -198,7 +199,7 @@
     </record>
 
      <!-- Actions -->
-     <record id="action_certificate_of_employment_tree" model="ir.actions.act_window">
+    <record id="action_certificate_of_employment_tree" model="ir.actions.act_window">
         <field name="name">Certificate of Employment</field>
         <field name="res_model">certificate.of.employment</field>
         <field name="view_mode">tree,kanban,form</field>
