@@ -1,2 +1,5 @@
 id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
-access_notice_to_explain,access_notice_to_explain,model_notice_to_explain,base.group_user,1,1,1,1
+access_notice_to_explain_user,access_notice_to_explain_user,model_notice_to_explain,base.group_user,1,1,1,1
+access_ir_model_user,access_ir_model_user,base.model_ir_model,base.group_user,1,0,0,0
+access_notice_approval_flow_user,access_notice_approval_flow_user,model_notice_approval_flow,base.group_user,1,1,1,1
+

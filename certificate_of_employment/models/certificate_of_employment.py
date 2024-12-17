@@ -199,12 +199,11 @@ class CertificateOfEmployment(models.Model):
             company_id = employee_data.get('company_id', [False])[0]
             
             # Search for an active workflow matching the company and module selection
-            workflow = self.env['workflow'].search(
-                [('company', '=', company_id), ('is_active', '=', True), ('module_selection', '=', 'certificate_of_employment')],
+            workflows = self.env['workflow'].search(
+                [('company', '=', company_id), ('employee_category', '=', record.employee_category), ('is_active', '=', True), ('module_selection', '=', 'certificate_of_employment')],
                 limit=1
             )
-            
-            record.work_flow = workflow.id if workflow else False
+            record.work_flow = workflows.id if workflows else False
     
     """ End of workflow setup """
     

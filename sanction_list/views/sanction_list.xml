@@ -31,6 +31,7 @@
         <field name="arch" type="xml">
             <tree>
                 <field name="sanction_name"/>
+                <field name="description" />
             </tree>
         </field>
     </record>
@@ -45,6 +46,8 @@
                     <div t-attf-class="o_kanban_card oe_kanban_global_click custom_sanction_kanban">
                         <div class="o_kanban_primary_row"> 
                             <field name="sanction_name"/>
+                            <field name="description" />
+
                         </div>
                     </div>
                 </t>

@@ -76,7 +76,7 @@
               name="Employee Medical Records" 
               action="action_employee_medical_record"
               sequence="10"
-              web_icon="employee_medical_record,static/src/description/medical.png"/>
+              web_icon="employee_medical_record,static/diagnosis.png"/>
 
   
 </odoo>

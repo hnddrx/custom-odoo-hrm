@@ -18,6 +18,8 @@ class EmployeeAccountability(models.Model):
         required=True,
         context={'no_create': True}
     )
+    
+    
     first_name = fields.Char(string="First Name", readonly=True, compute='_compute_employee_info', store=True)
     last_name = fields.Char(string="Last Name", readonly=True, compute='_compute_employee_info', store=True)
     department = fields.Char(string='Department', readonly=True, compute='_compute_employee_info', store=True)
@@ -40,6 +42,7 @@ class EmployeeAccountability(models.Model):
         string='Return Table'
     )
 
+    remarks = fields.Text(string="Remarks")
     # Override create method
     @api.model
     def create(self, vals):

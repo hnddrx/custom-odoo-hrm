@@ -34,12 +34,10 @@
                                 options="{'no_create': True}" 
                                 string="Company" 
                                 class="o_field_company"/>
-                            <field name="employee_category"
-                                placeholder="Select employee category"
-                                widget="selection"
-                                class="o_field_category"
-                            />
-                                
+
+                        <!-- Job Level Selection -->
+                        <field name="employee_category" widget="selection"/>
+                            
                         </group>
 
                         <!-- Action Flow and Active Status -->
@@ -68,7 +66,6 @@
                                     <field name="approver_email" 
                                         placeholder="Select Approver" 
                                         options="{'no_create': True}" 
-                                        domain="[('company_id', '=', parent.company)]" 
                                         widget="many2one" class="o_approver_email_field"/>
 
                                     <!-- Sequence Status with a visually distinct selection -->

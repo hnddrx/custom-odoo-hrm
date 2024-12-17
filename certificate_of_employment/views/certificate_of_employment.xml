@@ -172,6 +172,14 @@
                 <field name="doc_name" />
                 <field name="employee"/>
                 <field name="type"/>
+
+                <field name="status" widget="badge"
+                        decoration-info="current_docstatus == 1" 
+                        decoration-success="current_docstatus == 2"
+                        decoration-warning="current_docstatus == 3"
+                        decoration-danger="current_docstatus == 4"
+                />
+                <field name="current_docstatus"/>
             </tree>
         </field>
     </record>
@@ -216,5 +224,5 @@
         name="Certificate of Employment" 
         action="action_certificate_of_employment_tree" 
         sequence="10"
-        web_icon="certificate_of_employment,static/src/description/coe.png"/>
+        web_icon="certificate_of_employment,static/src/desciption/diploma.png"/>
 </odoo>

@@ -27,8 +27,9 @@ class Workflow(models.Model):
         string="Company",
         required=True,
         tracking=True,
-        default=lambda self: self.env.company,
     )
+    
+    
     action_flow = fields.Selection(
         selection=[('parallel', 'Parallel'), ('sequential', 'Sequential')],
         string="Action Flow",
@@ -44,16 +45,26 @@ class Workflow(models.Model):
         'workflow_id',
         string='Approval Table'
     )
-    
-    employee_category = fields.Selection(string="Employee Category", selection=[('office staff','OFFICE STAFF'),('promodiser','PROMODISER'),('crew','CREW'),('driver/helper/maintenance','DRIVER/HELPER/MAINTENANCE'),('production','PRODUCTION')])
+    employee_category = fields.Selection(
+        string="Employee Category", 
+        selection=[
+            ('office staff', 'OFFICE STAFF'),
+            ('promodiser', 'PROMODISER'),
+            ('crew', 'CREW'),
+            ('driver/helper/maintenance', 'DRIVER/HELPER/MAINTENANCE'),
+            ('production', 'PRODUCTION')
+        ]
+    )
     
     @api.model
     def _get_available_modules(self):
         """Fetch installed modules for the selection field."""
         modules = self.env['ir.module.module'].search([('state', '=', 'installed')])
+        if not modules:
+            _logger.warning("No installed modules found.")
+            return []
         return [(module.name, module.shortdesc or module.name) for module in modules]
-
-
+    
 class Approvals(models.Model):
     _name = 'approvals'
     _description = 'Approval Records'
@@ -67,10 +78,9 @@ class Approvals(models.Model):
     approver_email = fields.Many2one(
         'res.users',
         string='Approver Email',
-        required=True,
-        domain="[('company_id', '=', workflow_id.company), ('active', '=', true)]"
+        required=True
     )
-
+    """ ('company_id', 'in', workflow_id.company), """
     sequence_status = fields.Many2one(
         'docstatus',
         string='Approval Status',

@@ -8,30 +8,44 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="incident_report"/>
-                            <field name="employee"/>
+                            <field name="incident_report" placeholder="Select Incident Report" widget="many2one"/>
+                            <field name="employee" placeholder="Select Employee" widget="many2one" />
                             <field name="employee_name"/>
-
-                            <field name="offense"/>
-                            <field name="offense_description"/>
-                            <field name="sanction"/>
-                            <field name="description"/>
-                           
+                            <field name="department"/>
+                            <field name="branch" invisilbe="branch == ''"/>
+                            <field name="brand" invisible="brand == ''"/>
                         </group>
-                        
                         <group>
                             <field name="posting_date"/>
                             <field name="terminated_on" invisible="True"/>
-                            <field name="number_of_days"/>
-                            <field name="suspended_from"/>
-                            <field name="suspended_to"/>
-                            <field name="underwent"/>
+                            <field name="number_of_days" widget="integer"/>
+                            <field name="suspended_from" placeholder="Select Date"/>
+                            <field name="suspended_to" placeholder="Select Date"/>
+                            <field name="attachment_ids" widget="many2many_binary" options="{'no_create': True}"/> 
                         </group>
                     </group>
-                    <group>
-                 <!--        <field name="remarks"/> -->
-                        <field name="hearing_remarks"/>
-                    </group>
+                    <notebook>
+                        <page string="Offense and Sanction Details"> 
+                            <group>
+                                <field name="offense" placeholder="Select Offense" widget="many2one"/>
+                                <field name="offense_description"/>
+                                <field name="sanction" placeholder="Select Sanction" widget="many2one"/>
+                                <field name="description"/>
+                            </group>
+                        </page>
+                        <page string="Underwent"> 
+                            <group>
+                                <field name="underwent" widget="boolean"/>
+                                <field name="underwent_preventive_suspension" widget="boolean"/>
+                            </group>
+
+                        </page>
+                        <page string="Remarks">
+                            <group>
+                                <field name="hearing_remarks" placeholder="Type hearing remarks here."/>
+                            </group>
+                        </page>
+                    </notebook>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>
                         <field name="message_ids" widget="mail_thread"/>
@@ -99,8 +113,7 @@
     sequence="10" 
     web_icon="disciplinary_action,static/src/description/discipline.png" />
 
-        <!-- Menu Item -->
-  
+    <!-- Menu Item -->
 
     <menuitem id="menu_offense_list" 
         parent="menu_diciplinary_root" 

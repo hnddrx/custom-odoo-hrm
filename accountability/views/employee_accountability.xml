@@ -34,6 +34,7 @@
                             <field name="posting_date" class="ds_o_field" readonly="1"/>
                             <field name="company" class="ds_o_field" />
                             <field name="department" class="ds_o_field" />
+                            
                         </group>
                     </group>
                     
@@ -60,6 +61,9 @@
                                     <field name="date_returned"/>
                                 </tree>
                             </field>
+                        </page>
+                        <page string="Remarks">
+                            <field name="remarks" string="" placeholder="Type here" />
                         </page>
                     
                     </notebook>
@@ -113,5 +117,5 @@
         </field>
     </record>
     <!-- Menu Item to Access the Model -->
-    <menuitem id="menu_employee_accountability" name="Employee Accountability" action="action_accountability"  web_icon="accountability,static/src/image/accountability (2).png"/>
+    <menuitem id="menu_employee_accountability" name="Employee Accountability" action="action_accountability"  web_icon="accountability/static/src/desciption/accountability.png"/>
 </odoo>
