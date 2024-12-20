@@ -1,4 +1,7 @@
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError, UserError
+from datetime import date
+import urllib.parse  # Import urllib.parse for URL encoding
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -20,14 +23,18 @@ class EmployeeClearance(models.Model):
     company = fields.Char(string="Company", readonly=True, compute='_compute_employee_info', store=True)
     department = fields.Char(string="Department", readonly=True, compute='_compute_employee_info', store=True)
 
-    # Clearance Information
+    #Report URL 
+    report_url = fields.Char(string="Report URL", compute="_compute_report_url", store=True)
+    
+    #Clearance Information
     reason_for_leaving = fields.Text(string="Reason for Leaving")
     company_email = fields.Char(string="Company Email")
     remarks = fields.Text(string="Remarks")
     last_working_date = fields.Date(string="Last Working Date")
     effective_date = fields.Date(string="Effective Date")
     posting_date = fields.Date(string='Posting Date', default=fields.Date.context_today, readonly=True)
-
+    consent = fields.Boolean(string='Consent')
+    
     # Clearance Type and Authorizations
     clearance_type = fields.Selection(
         [
@@ -44,25 +51,82 @@ class EmployeeClearance(models.Model):
         'department.manager',
         'clearance_id',  # Corrected reverse relation field
         string='Authorized',
+    )
+    
+    human_resource_ids = fields.One2many(
+        'human.resources',
+        'clearance_id',  # Corrected reverse relation field
+        string='Authorized',
         copy=True
     )
+
 
     # Signee Information
     conforme_employee_name = fields.Many2one('hr.employee', string='Conforme')
     contact_number = fields.Char(string='Contact Number')
-    signed_date = fields.Date(string='Signed Date')  # Date field instead of Char
+    signed_date = fields.Date(string='Signed Date', compute='_compute_signed_date', store=True)  # Date field instead of Char
 
+
+    """ Generate jasper report """
+    
+    def _compute_report_url(self):
+        """Private method to compute the report URL."""
+        for record in self:
+            base_url = 'http://192.168.2.161:8080/jasperserver/flow.html'
+            params = {
+                '_flowId': 'viewReportFlow',
+                'ParentFolderUri': '/Forms',
+                'reportUnit': '/forms/clearance',
+                'standAlone': 'true',
+                'j_username': 'jasperadmin',
+                'j_password': 'jasperadmin',
+                'output': 'pdf',
+                'filter1': record.doc_name or ''
+            }
+            # Construct the full URL with query parameters
+            record.report_url = f"{base_url}?{urllib.parse.urlencode(params)}"
+
+    def action_generate_report_url(self):
+        """Public method to be called by the button."""
+        self._compute_report_url()
+        # Optionally return an action or response
+        return {
+            'type': 'ir.actions.act_url',
+            'url': self.report_url,
+            'target': 'new',  # Opens in a new tab
+        }
+        
+    """ End Generate Report  """
+    
     @api.model
     def create(self, vals):
         """Generate document name sequence during creation."""
         if vals.get('doc_name', 'New') == 'New':
-            vals['doc_name'] = self.env['ir.sequence'].next_by_code('employee.clearance') or 'New'
+                sequence_code = 'employee.clearance'
+                company_id = self.env.company.id  # Current company
+                # Fetch the correct sequence for the current company
+                sequence = self.env['ir.sequence'].sudo().search([
+                    ('code', '=', sequence_code)
+                ], limit=1)
+                if sequence:
+                    vals['doc_name'] = sequence.next_by_id()
+                else:
+                    vals['doc_name'] = '/'  # Fallback if no sequence is found
         return super(EmployeeClearance, self).create(vals)
 
     def action_save(self):
         """Custom save action."""
         self.ensure_one()
         _logger.info(f"Saving Employee Clearance {self.doc_name}")
+
+    @api.depends('consent')
+    def _compute_signed_date(self):
+        for record in self:
+            if record.consent:
+                record.signed_date = fields.Date.context_today(self)
+            else:
+                record.signed_date = False
+        
 
     @api.depends('employee_id')
     def _compute_employee_info(self):
@@ -75,27 +139,123 @@ class EmployeeClearance(models.Model):
                 record.company = employee.company_id.name
                 record.company_email = employee.company_id.email
                 record.position_title = employee.job_title
-               
             else:
                 record.employee_name = ''
                 record.department = ''
                 record.company = ''
                 record.company_email = ''
                 record.position_title = ''
-
+                
 class DepartmentManager(models.Model):
     _name = 'department.manager'
     _description = 'Department Manager Clearance'
 
     # Link back to the clearance record
-    clearance_id = fields.Many2one('employee.clearance', string="Clearance", required=True, ondelete='cascade')
+    clearance_id = fields.Many2one(
+        'employee.clearance', 
+        string="Clearance", 
+        required=True, 
+        ondelete='cascade'
+    )    
 
     # Clearance Details
-    authorized = fields.Many2one('hr.employee', string='Authorized', required=True)
-    accountability = fields.Char(string="Accountability")
+    authorized = fields.Many2one(
+        'res.users', 
+        string='Authorized', 
+        compute="_compute_authorized", 
+        store=False,  # Remove if not needed to store in DB
+    )
+    
     status = fields.Selection(
-        [('cleared', 'Cleared'), ('not-cleared', 'Not Cleared')], 
+        selection=[
+            ('cleared', 'Cleared'), 
+            ('not-cleared', 'Not Cleared')
+        ], 
         string="Status"
     )
     remarks = fields.Text(string='Remarks')
-    date = fields.Date(string="Date")
+    date = fields.Date(string="Date", compute="_compute_authorized", store=False)
+
+    accountability = fields.Selection(
+        string="Accountability",
+        selection=[('job_turn_over','Job turn-over Checklist')],
+        help="Automatically populated based on the selected department"
+    )
+    
+    @api.depends('status')
+    def _compute_authorized(self):
+        for record in self:
+            if record.status == 'cleared':
+                record.authorized = self.env.user
+                record.date = fields.Date.context_today(self)
+            else:
+                record.authorized = False
+                record.date = False
+                
+    @api.depends('status')
+    def _compute_authorized(self):
+        for record in self:
+            if record.status:
+                record.authorized = self.env.user
+                record.date = fields.Date.context_today(self)
+            else:
+                record.authorized = False
+                record.date = False
+
+class HumanResources(models.Model):
+    _name = 'human.resources'
+    _description = 'Human Resources Clearance'
+
+    # Link back to the clearance record
+    clearance_id = fields.Many2one(
+        'employee.clearance', 
+        string="Clearance", 
+        required=True, 
+        ondelete='cascade'
+    )    
+
+    # Clearance Details
+    authorized = fields.Many2one(
+        'res.users', 
+        string='Authorized', 
+        compute="_compute_authorized", 
+        store=False,  # Remove if not needed to store in DB
+    )
+    
+    status = fields.Selection(
+        selection=[
+            ('cleared', 'Cleared'), 
+            ('not-cleared', 'Not Cleared')
+        ], 
+        string="Status"
+    )
+    remarks = fields.Text(string='Remarks')
+    date = fields.Date(string="Date", compute="_compute_authorized", store=False)
+
+    accountability = fields.Selection(
+        string="Accountability",
+        selection=[],
+        help="Automatically populated based on the selected department"
+    )
+    
+    @api.depends('status')
+    def _compute_authorized(self):
+        for record in self:
+            if record.status == 'cleared':
+                record.authorized = self.env.user
+                record.date = fields.Date.context_today(self)
+            else:
+                record.authorized = False
+                record.date = False
+                
+    @api.depends('status')
+    def _compute_authorized(self):
+        for record in self:
+            if record.status:
+                record.authorized = self.env.user
+                record.date = fields.Date.context_today(self)
+            else:
+                record.authorized = False
+                record.date = False
+
+

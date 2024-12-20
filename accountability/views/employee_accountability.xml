@@ -64,6 +64,7 @@
                         </page>
                         <page string="Remarks">
                             <field name="remarks" string="" placeholder="Type here" />
+                            <field name="attachment_ids" widget="many2many_binary" options="{'no_create': True}"/> 
                         </page>
                     
                     </notebook>

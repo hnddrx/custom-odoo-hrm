@@ -84,10 +84,6 @@
                                             style="padding: 8px 16px; font-size: 14px; border-radius: 4px;">
                                     </button>
                                 </div>
-                                
-                                
-                                
-                                <!-- Status Badge -->
                                 <div>
 
                                     <field name="status" 
@@ -110,28 +106,31 @@
                         <group>
                             <field name="doc_name" invisible="1" readonly="current_docstatus != 0"/>
                             <field name="incident_location" placeholder="Type location here" readonly="current_docstatus != 0"/>
-                            <field name="department" placeholder="Select Department" readonly="current_docstatus != 0"/>
+                            <!-- <field name="department" placeholder="Select Department" readonly="current_docstatus != 0"/> -->
                             <field name="employee_category" placeholder="Employee Category" widget="selection"   readonly="current_docstatus != 0"/>
-
                             <field name="section" placeholder="Select Department" invisible="section == False" readonly="current_docstatus != 0"/>
                             <field name="branch" placeholder="Select Department" invisible="branch == False" readonly="current_docstatus != 0"/>
                         </group>
                         <group> 
-                            <field name="posting_date" readonly="current_docstatus != 0"/>   
+                            <field name="posting_date"/>   
                             <field name="date_and_time_of_offense" placeholder="Select date" readonly="current_docstatus != 0"/>
-                            <field name="expected_da" placeholder="Select Disciplinary Action" readonly="current_docstatus != 0"/>
+                            <field name="expected_da" placeholder="Select Disciplinary Action" widget="many2one" readonly="current_docstatus != 0"/>
+                            <field name="reported_by" readonly="1"/>
+                            <field name="date_reported" readonly="1"/>
                         </group>
                     </group>
 
                     <notebook>
                         <!-- If clearance type is  equal to resignation then show page -->
                         <page string="Involved Employees" readonly="current_docstatus != 0">
-                            <field name="involved_employees">
+                            <field name="involved_employees" readonly="current_docstatus != 0">
                                 <tree editable="bottom">
                                     <field name="employee"/>
                                     <field name="employee_name"/>
                                     <field name="involvement"/>
                                     <field name="department"/>
+                                    <field name="branch"/>
+                                    <field name="brand"/>   
                                 </tree>
                             </field>
                         </page>
@@ -162,6 +161,13 @@
                  <field name="doc_name"/> 
                 <field name="posting_date"/>
                 <field name="date_and_time_of_offense" />
+                <field name="status" widget="badge"
+                        decoration-info="current_docstatus == 1" 
+                        decoration-success="current_docstatus == 2"
+                        decoration-warning="current_docstatus == 3"
+                        decoration-danger="current_docstatus == 4"
+                />
+                <field name="current_docstatus"/>
             </tree>
         </field>
     </record>

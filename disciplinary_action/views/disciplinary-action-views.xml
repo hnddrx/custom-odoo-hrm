@@ -12,8 +12,8 @@
                             <field name="employee" placeholder="Select Employee" widget="many2one" />
                             <field name="employee_name"/>
                             <field name="department"/>
-                            <field name="branch" invisilbe="branch == ''"/>
-                            <field name="brand" invisible="brand == ''"/>
+                            <field name="branch" invisible="branch == ''"/>
+                            <field name="brand" invisible="branch == ''"/>
                         </group>
                         <group>
                             <field name="posting_date"/>
@@ -26,12 +26,18 @@
                     </group>
                     <notebook>
                         <page string="Offense and Sanction Details"> 
+                        <group>
                             <group>
                                 <field name="offense" placeholder="Select Offense" widget="many2one"/>
                                 <field name="offense_description"/>
                                 <field name="sanction" placeholder="Select Sanction" widget="many2one"/>
                                 <field name="description"/>
                             </group>
+                            <group>
+                                <field name="next_sanction" widget="many2one"/>
+                                <field name="next_sanction_description"/>
+                            </group>
+                        </group>
                         </page>
                         <page string="Underwent"> 
                             <group>

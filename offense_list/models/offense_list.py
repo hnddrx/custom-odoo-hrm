@@ -11,8 +11,8 @@ class OffenseLists(models.Model):
     _rec_name = "doc_name"
     
     doc_name = fields.Char(string='Document Name', required=True, readonly=True, default='New')
-    offense_name = fields.Char(string='Offense Name', required=True, tracking=True)
-    description = fields.Text(string='Description', required=True, tracking=True)
+    offense_name = fields.Char(string='Offense Name', required=True, tracking=True, store=True)
+    description = fields.Text(string='Description', required=True, tracking=True, store=True)
     
     @api.model
     def create(self, vals):

@@ -1,5 +1,7 @@
-from odoo import fields, models, api, _
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError, UserError
 from datetime import date
+import urllib.parse  # Import urllib.parse for URL encoding
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -13,13 +15,13 @@ class NoticeToExplain(models.Model):
     doc_name = fields.Char(string="Name", readonly=True, default='New')
 
     # Many2many relationship field for incident reports
-    incident_report = fields.Many2many('incident.report', string='Incident Report', required=True)
+    incident_report = fields.Many2one('incident.report', string='Incident Report')
 
     # Many2one relationship field for the employee
     employee = fields.Many2one('hr.employee', string='Employee', required=True)
 
-    employee_name = fields.Char(string=_('Employee Name'), readonly=True, compute='_compute_employee_name', store=True)
-
+    employee_name = fields.Char(string='Employee Name', readonly=True, compute='_compute_employee_name', store=True)
+    employee_category = fields.Char(string="Employee Category", store=True)
     # Attachments related to this document
     attachment_ids = fields.Many2many(
         'ir.attachment',
@@ -36,7 +38,8 @@ class NoticeToExplain(models.Model):
 
     # Posting date (current date by default)
     posting_date = fields.Date(string="Posting date", default=lambda self: date.today())
-
+    #Report URL 
+    report_url = fields.Char(string="Report URL", compute="_compute_report_url", store=True)
     """ Workflow Setup """
     current_docstatus = fields.Integer(string="Current Docstatus", default=0)
     current_sequence = fields.Integer(string="Current Sequence", default=0)
@@ -51,6 +54,37 @@ class NoticeToExplain(models.Model):
         'notice_id',
         string='Module Approval Flow'
     )
+    
+    """ Generate jasper report """
+    
+    def _compute_report_url(self):
+        """Private method to compute the report URL."""
+        for record in self:
+            base_url = 'http://192.168.2.161:8080/jasperserver/flow.html'
+            params = {
+                '_flowId': 'viewReportFlow',
+                'ParentFolderUri': '/Forms',
+                'reportUnit': '/forms/notice_to_explain',
+                'standAlone': 'true',
+                'j_username': 'jasperadmin',
+                'j_password': 'jasperadmin',
+                'output': 'pdf',
+                'filter1': record.doc_name or ''
+            }
+            # Construct the full URL with query parameters
+            record.report_url = f"{base_url}?{urllib.parse.urlencode(params)}"
+
+    def action_generate_report_url(self):
+        """Public method to be called by the button."""
+        self._compute_report_url()
+        # Optionally return an action or response
+        return {
+            'type': 'ir.actions.act_url',
+            'url': self.report_url,
+            'target': 'new',  # Opens in a new tab
+        }
+        
+    """ End Generate Report  """
 
     @api.model
     def open_record(self):
@@ -62,40 +96,7 @@ class NoticeToExplain(models.Model):
             _logger.error("Error in open_record: %s", e)
             raise
         
-    
-
-    @api.depends('employee')
-    def _compute_workflow(self):
-        """Compute and assign the appropriate workflow based on the employee's company."""
-        for record in self:
-            if not record.employee:
-                record.work_flow = False
-                continue
-
-            employee_data = record.employee.read(['company_id'])[0]
-            company_id = employee_data.get('company_id', [False])[0]
-
-            # Search for an active workflow matching the company and module selection
-            workflow = self.env['workflow'].search(
-                [('company', '=', company_id), ('is_active', '=', True), ('module_selection', '=', 'notice_to_explain')],
-                limit=1
-            )
-
-            if workflow:
-                record.work_flow = workflow.id
-            else:
-                record.work_flow = False
-
-    @api.depends('employee')
-    def _compute_employee_name(self):
-        """Compute the employee name based on the selected employee."""
-        for record in self:
-            if record.employee:
-                record.employee_name = record.employee.name
-            else:
-                record.employee_name = ''
-
-    @api.depends('employee', 'status', 'module_approval_flow')
+    @api.depends('status')
     def _compute_permissions(self):
         """Compute permissions to approve, reject, or cancel based on the current user's role in the approval flow."""
         current_user_id = self.env.user.id
@@ -188,7 +189,83 @@ class NoticeToExplain(models.Model):
             except Exception as e:
                 _logger.error("Error in action_cancel for record %s: %s", record.id, e)
                 raise
+            
+    def _populate_approval_flow(self):
+        """Populate the approval flow based on the workflow."""
+        # Add logic to populate the approval flow here
+        """Populate or append approval flow records for this certificate."""
+        for record in self:
+            if record.work_flow and record.work_flow.approvals_table:
+                approval_values = [
+                    {
+                        'notice_id': record.id,
+                        'module_approver_name': approval.approver_email.id,
+                        'module_approver_email': approval.approver_email.login,
+                        'module_approval_status': approval.sequence_status.status_name,
+                        'module_doc_status': approval.doc_status,
+                        'module_approval_sequence': approval.sequence
+                    }
+                    for approval in record.work_flow.approvals_table
+                ]
 
+                # Bulk create missing approvals
+                existing_approval_ids = self.env['module.approval.flow'].search([
+                    ('notice_id', '=', record.id),
+                    ('module_approval_sequence', 'in', [approval['module_approval_sequence'] for approval in approval_values])
+                ]).ids
+
+                # Create new approvals for missing records
+                missing_approvals = [approval for approval in approval_values if approval['module_approval_sequence'] not in existing_approval_ids]
+                if missing_approvals:
+                    self.env['module.approval.flow'].create(missing_approvals)
+                    _logger.info(f"Approval flow appended for certificate {record.id}")
+                
+                if not approval_values:
+                    _logger.warning(f"No approval found for certificate {record.id}")
+            else:
+                _logger.warning(f"No approval table found for certificate {record.id}")
+        pass
+
+    @api.depends('employee_category')
+    def _compute_workflow(self):
+        """Compute and assign the appropriate workflow based on the employee's company."""
+        for record in self:
+            if not record.employee:
+                record.work_flow = False
+                continue
+
+            employee_data = record.employee.read(['company_id'])[0]
+            company_id = employee_data.get('company_id', [False])[0]
+
+            # Search for an active workflow matching the company and module selection
+            workflow = self.env['workflow'].search(
+                [('employee_category', '=', record.employee_category),('company', '=', company_id), ('is_active', '=', True), ('module_selection', '=', 'notice_to_explain')],
+                limit=1
+            )
+
+            if workflow:
+                record.work_flow = workflow.id
+            else:
+                record.work_flow = False
+                
+    @api.depends('employee')
+    def _compute_employee_name(self):
+        """Compute the employee name based on the selected employee."""
+        for record in self:
+            if record.employee:
+                record.employee_name = record.employee.name
+                record.employee_category = record.employee.x_employeecategory_
+            else:
+                record.employee_name = ''
+                record.employee_category = ''
+                
+    @api.onchange('attachment_ids')
+    def _onchange_attachment_ids(self):
+        """Automatically handle attachment upload and associate it with this record."""
+        for attachment in self.attachment_ids:
+            attachment.res_model = self._name
+            attachment.res_id = self.id
+            
     @api.model
     def create(self, vals):
         """Create method override with error handling and approval flow population."""
@@ -223,49 +300,7 @@ class NoticeToExplain(models.Model):
         except Exception as e:
             _logger.error("Error updating notice to explain: %s", e)
             raise
-
-    def _populate_approval_flow(self):
-        """Populate the approval flow based on the workflow."""
-        # Add logic to populate the approval flow here
-        """Populate or append approval flow records for this certificate."""
-        for record in self:
-            if record.work_flow and record.work_flow.approvals_table:
-                approval_values = [
-                    {
-                        'certificate_id': record.id,
-                        'module_approver_name': approval.approver_email.id,
-                        'module_approver_email': approval.approver_email.login,
-                        'module_approval_status': approval.sequence_status.status_name,
-                        'module_doc_status': approval.doc_status,
-                        'module_approval_sequence': approval.sequence
-                    }
-                    for approval in record.work_flow.approvals_table
-                ]
-
-                # Bulk create missing approvals
-                existing_approval_ids = self.env['module.approval.flow'].search([
-                    ('certificate_id', '=', record.id),
-                    ('module_approval_sequence', 'in', [approval['module_approval_sequence'] for approval in approval_values])
-                ]).ids
-
-                # Create new approvals for missing records
-                missing_approvals = [approval for approval in approval_values if approval['module_approval_sequence'] not in existing_approval_ids]
-                if missing_approvals:
-                    self.env['module.approval.flow'].create(missing_approvals)
-                    _logger.info(f"Approval flow appended for certificate {record.id}")
-                
-                if not approval_values:
-                    _logger.warning(f"No approval found for certificate {record.id}")
-            else:
-                _logger.warning(f"No approval table found for certificate {record.id}")
-        pass
-
-    @api.onchange('attachment_ids')
-    def _onchange_attachment_ids(self):
-        """Automatically handle attachment upload and associate it with this record."""
-        for attachment in self.attachment_ids:
-            attachment.res_model = self._name
-            attachment.res_id = self.id
+        
             
             
 """ Notice to explain module approval flow """

@@ -99,20 +99,37 @@
                                         style="font-size: 14px; font-weight: bold; padding: 6px 12px; border-radius: 4px;">
                                     </field>
                                 </div>
-                                
                             </div>
-                                
                         </div>
                     </div>
+                    <button name="action_generate_report_url" 
+                        type="object"
+                        help="Click here to print Notice to Explain"
+                        style="background: linear-gradient(135deg, #ff6f61, #ff3c3c); 
+                            border: none; 
+                            margin-left:20px;
+                            border-radius: 8px; 
+                            padding: 10px 15px; 
+                            cursor: pointer; 
+                            color: white; 
+                            font-size: 16px; 
+                            display: inline-flex; 
+                            align-items: center; 
+                            justify-content: center;">
+                    <span class="fa fa-file-pdf-o" style="font-size: 18px;"></span>
+                </button>
                 </header>
                 <sheet>
                     <group>
                         <group>
-                            <field name="incident_report" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="incident_report" widget="many2one_tag" options="{'no_create': True}"/>
                             <field name="employee" widget="many2one_tag"/>
+                            <field name="employee_name"/>
+                            <field name="employee_category" readonly="1"/>
                             
                         </group>
                         <group>
+                            <field name="posting_date"/>
                             <field name="attachment_ids" widget="many2many_binary" options="{'no_create': True}"/> 
                             <field name="remarks"/>
                         </group>
@@ -175,5 +192,5 @@
     </record>
 
     <!-- Menu -->
-    <menuitem id="menu_notice_to_explain" name="Notice to Explain" action="notice_to_explain_action" sequence="10" web_icon="notice_to_explain,static/src/image/warning.png" />
+    <menuitem id="menu_notice_to_explain" name="Notice to Explain" action="notice_to_explain_action" sequence="10" web_icon="notice_to_explain,static/src/description/notice (1).png" />
 </odoo>

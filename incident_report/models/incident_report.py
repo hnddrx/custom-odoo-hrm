@@ -13,13 +13,13 @@ class IncidentReport(models.Model):
     _rec_name = "doc_name"
     
     #ID
-    doc_name = fields.Char(string='Document Name', required=True, readonly=True, default='New')
+    doc_name = fields.Char(string='Document Name', required=True, readonly=True, default='New', store=True)
 
     #char fields
     incident_location = fields.Char(string='Incident Location')
     violation_details = fields.Char(string='Violation Details')
     date_and_time_of_offense = fields.Datetime(string='Date and Time of Offense')
-    details_of_violation = fields.Text(string='Details of Violation')
+    details_of_violation = fields.Text(string='Details of Violation', store=True)
     posting_date = fields.Date(string='Posting Date',required=True,default=lambda self: fields.Datetime.now(),readonly=True)
     damage_done = fields.Text(string='Damage Done')
     involved_employees = fields.One2many(
@@ -27,15 +27,17 @@ class IncidentReport(models.Model):
         'incident_report_id',
         string='Employee'
     )
-    
+    reported_by = fields.Many2one('res.users', string="Reported By", default=lambda self: self.env.user)
+    date_reported = fields.Date(string="Date Reported", store=True)
+
     #additional field
     corrective_action = fields.Text(string="Corrective Action")
-    employee_category = fields.Selection(string="EmployeeCategory", selection=[('office staff','OFFICE STAFF'),('promodiser','PROMODISER'),('crew','CREW'),('driver/helper/maintenance','DRIVER/HELPER/MAINTENANCE'),('production','PRODUCTION')], store=True)
-    department = fields.Many2one('hr.department',string="Department", required=True,store=True)
+    employee_category = fields.Selection(string="Employee Category", selection=[('office staff','OFFICE STAFF'),('promodiser','PROMODISER'),('crew','CREW'),('driver/helper/maintenance','DRIVER/HELPER/MAINTENANCE'),('production','PRODUCTION')], store=True)
+    department = fields.Many2one('hr.department',string="Department",store=True)
     branch = fields.Char(string="Branch", readonly=True)
     section = fields.Char(string="Section", readonly=True)
     brand  = fields.Char(string="Branch")
-    expected_da =  fields.Many2one('sanction.lists', string="Expected Disciplinary Action")
+    expected_da =  fields.Many2one('sanction.lists', string="Expected Disciplinary Action", store=True)
     
     
     """ Workflow setup """
@@ -86,29 +88,36 @@ class IncidentReport(models.Model):
                 """  break  # Exit loop after the first match """
     
     def action_submit(self):
-        for record in self: 
-            record.current_sequence = 0
-            record.current_docstatus = 0
+        for record in self:
             if record.status == 'Draft':
-                record.status = 'Pending'
-                record.current_sequence += 1 
-                record.current_docstatus += 1
+                record.update({
+                    'current_sequence': 1,
+                    'current_docstatus': 1,
+                    'date_reported': fields.Datetime.now(),
+                    'status': 'Pending',
+                })
+
                 
     def action_approve(self):
         for record in self:
-            # Find the first matching approver status (if any)
+            # Filter to find the first matching approver status
             approver_status = record.module_approval_flow.filtered(
                 lambda a: a.module_approver_name.id == self.env.user.id and a.module_doc_status in (1, 2)
             )
 
-            # If a matching approver is found, update the status and sequence
+            # Update the record if a matching approver is found
             if approver_status:
-                    approver_status = approver_status[0]  # Get the first (and presumably only) matching approver
-                    record.status = approver_status.module_approval_status
-                    record.current_docstatus = approver_status.module_doc_status
-                    approver_status.module_approval_date = fields.Datetime.now()
-                    approver_status.module_approval_confirmed = True
-                    record.current_sequence += 1      
+                approver_status = approver_status[0]  # Get the first matching approver
+                approver_status.update({
+                    'module_approval_date': fields.Datetime.now(),
+                    'module_approval_confirmed': True,
+                })
+                record.update({
+                    'status': approver_status.module_approval_status,
+                    'current_docstatus': approver_status.module_doc_status,
+                    'current_sequence': record.current_sequence + 1,
+                })
+    
             
     def action_reject(self):
         for record in self:
@@ -170,19 +179,20 @@ class IncidentReport(models.Model):
             else:
                 _logger.warning(f"No approval table found for ir {record.id}")
     #Change to status trigger
-    @api.depends('department')
+    @api.depends('employee_category')
     def _get_workflow(self):
         """Compute and assign the appropriate workflow based on the employee's company."""
         for record in self:
-            
+            if not record.employee_category:
+                record.work_flow = False
+                continue
             # Search for an active workflow matching the company and module selection
             workflow = self.env['workflow'].search(
-                [ ('is_active', '=', True), ('module_selection', '=', 'incident_report')],
+                [('employee_category', '=', record.employee_category), ('is_active', '=', True), ('module_selection', '=', 'incident_report')],
                 limit=1
             )
             
             record.work_flow = workflow.id if workflow else False
-
     
     """ End of workflow """
     def write(self, vals):
@@ -256,12 +266,16 @@ class InvolvedEmployees(models.Model):
     
     incident_report_id = fields.Many2one('incident.report', string="Incident Report")
     employee = fields.Many2one('hr.employee', string="Employee ID", required=True)
-    employee_name =  fields.Char(string="Employee Name", readonly=True, compute='_compute_employee_name', store=True)
+    employee_name =  fields.Char(string="Employee Number", readonly=True, compute='_compute_employee_name', store=True)
     involvement  = fields.Selection([('offender', 'Offender'), ('complainant', 'Complainant'), ('witness', 'Witness')],string="Involvement")
     department = fields.Char(string="Department", readonly=True, compute='_compute_employee_name', store=True)
+    branch = fields.Char(string="Branch", readonly=True, compute='_compute_employee_name', store=True)
+    brand  = fields.Char(string="Brand", readonly=True, compute='_compute_employee_name', store=True)
     
     @api.depends('employee')
     def _compute_employee_name(self):
         for record in self:
-            record.employee_name = record.employee.name if record.employee else ''
+            record.employee_name = record.employee.s_employee_id if record.employee else ''
             record.department = record.employee.department_id.name if record.employee else ''
+            record.branch = record.employee.x_branch if record.employee else ''
+            record.brand = record.employee.x_brand_ if record.employee else''

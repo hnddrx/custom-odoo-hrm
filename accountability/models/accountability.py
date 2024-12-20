@@ -43,11 +43,27 @@ class EmployeeAccountability(models.Model):
     )
 
     remarks = fields.Text(string="Remarks")
+    attachment_ids = fields.Many2many(
+        'ir.attachment',
+        string="Attachments",
+        help="Attachments related to this document"
+    )
+
+    
     # Override create method
     @api.model
     def create(self, vals):
         if vals.get('doc_name', 'New') == 'New':
-            vals['doc_name'] = self.env['ir.sequence'].next_by_code('employee.accountability') or 'New'
+                sequence_code = 'accountability'
+                company_id = self.env.company.id  # Current company
+                # Fetch the correct sequence for the current company
+                sequence = self.env['ir.sequence'].sudo().search([
+                    ('code', '=', sequence_code)
+                ], limit=1)
+                if sequence:
+                    vals['doc_name'] = sequence.next_by_id()
+                else:
+                    vals['doc_name'] = '/'  # Fallback if no sequence is found
         record = super(EmployeeAccountability, self).create(vals)
         
         # Auto-fill company and department based on employee

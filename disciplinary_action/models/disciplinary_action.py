@@ -21,6 +21,8 @@ class DisciplinaryAction(models.Model):
     
     sanction = fields.Many2one('sanction.lists', string='Sanction',required=True)
     description = fields.Char(string='Sanction Description', readonly=True, compute='_get_sanction', store=True)
+    next_sanction = fields.Many2one('sanction.lists', string='Next Sanction')
+    next_sanction_description = fields.Char(string='Sanction Description', readonyl=True, compute='_get_sanction', store=True)
     underwent_preventive_suspension = fields.Boolean(string="Underwent to Preventive Suspension", default=False)
     underwent = fields.Boolean(string='Underwent to a conference', default=False)
     offense = fields.Many2one('offense.lists', string='Offense',required=True)
@@ -29,7 +31,7 @@ class DisciplinaryAction(models.Model):
     terminated_on = fields.Date(string='Terminated On')
 
     employee = fields.Many2one('hr.employee',string='Employee', required=True)
-    employee_name = fields.Char(string='Employee Name', readonly=True, compute='_compute_employee_info', store=True)
+    employee_name = fields.Char(string='Employee Number', readonly=True, compute='_compute_employee_info', store=True)
     department = fields.Char(string='Department', readonly=True, compute = '_compute_employee_info', store=True)
     branch = fields.Char(string='Branch', readonly=True, compute = '_compute_employee_info', store=True )
     brand = fields.Char(string="Brand", readonly=True, compute = '_compute_employee_info', store=True )
@@ -67,10 +69,10 @@ class DisciplinaryAction(models.Model):
         for record in self:
             employee = record.employee
             if employee:
-                record.employee_name = employee.s_full_name
+                record.employee_name = employee.s_employee_id
                 record.department = employee.department_id.name
-                record.branch = employee.x_empbranch
-                record.brand = employee.x_brand
+                record.branch = employee.x_branch
+                record.brand = employee.x_brand_
 
             else:
                 record.employee_name = ''
@@ -78,10 +80,13 @@ class DisciplinaryAction(models.Model):
                 record.branch = ''
                 record.brand = ''
             
-    @api.depends('sanction')
+    @api.depends('sanction','next_sanction')
     def _get_sanction(self):
         for record in self:
             record.description = record.sanction.description if record.sanction else ''
+            record.next_sanction_description = record.next_sanction.description if record.next_sanction else ''
+            
+        
     
     @api.depends('offense')
     def _get_offense(self):
