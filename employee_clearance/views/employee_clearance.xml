@@ -46,7 +46,7 @@
                 <group>
                     <group>
                         <field name="employee_id"/>
-                        <field name="employee_name" readonly="1"/>
+                        <!-- <field name="employee_name" readonly="1"/> -->
                         <field name="company"/>
                         <field name="company_email"/>
                         <field name="department"/>

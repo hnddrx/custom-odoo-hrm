@@ -1,8 +1,9 @@
-
 from odoo import models, fields, api, _
 from odoo.tools.safe_eval import safe_eval
 from odoo.exceptions import ValidationError, UserError
 from datetime import date
+import psycopg2
+import urllib.parse  # Import urllib.parse for URL encoding
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -12,7 +13,6 @@ class CertificateOfEmployment(models.Model):
     _description = 'Certificate of Employment'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _rec_name = 'doc_name'  # Use the doc_name field as the display name
-    
     
     TYPE_SELECTION = [
         ('COE With Basic Salary & Basic Allowance', 'COE With Basic Salary & Basic Allowance'),
@@ -29,7 +29,7 @@ class CertificateOfEmployment(models.Model):
     last_name = fields.Char(string=_('Last Name'), readonly=True, compute='_compute_employee_info', store=True)
     company_id = fields.Many2one('res.company', string='Company', compute='_compute_employee_info', store=True)
     department = fields.Char(string='Department', readonly=True, compute='_compute_employee_info', store=True)
-    certified_by = fields.Many2one('hr.employee', string='Certified By', compute='_compute_certified_by', store=True, readonly=False)
+    certified_by = fields.Many2one('coe.signatories', string='Certified By', store=True, readonly=False)
     employee_category = fields.Char(string='Employee Category', compute='_compute_employee_info', store=True)
     # Selection fields
     purpose = fields.Selection([
@@ -65,12 +65,43 @@ class CertificateOfEmployment(models.Model):
     can_cancel = fields.Boolean(string="Can Cancel", compute="_compute_can_approve_and_reject", store=True)
 
     work_flow = fields.Many2one('workflow', string='Workflow', compute='_get_workflow', store=True)
-    """  report_url = fields.Char(string="Report URL", compute="_compute_report_url", store=True) """
+    report_url = fields.Char(string="Report URL", compute="_compute_report_url", store=True)
     module_approval_flow = fields.One2many(
         'module.approval.flow',
         'certificate_id',
         string='Module Approval Flow'
     )
+
+    """ Generate jasper report """
+    
+    def _compute_report_url(self):
+        """Private method to compute the report URL."""
+        for record in self:
+            base_url = 'http://192.168.2.161:8080/jasperserver/flow.html'
+            params = {
+                '_flowId': 'viewReportFlow',
+                'ParentFolderUri': '/Forms',
+                'reportUnit': '/forms/coe_without_salary',
+                'standAlone': 'true',
+                'j_username': 'jasperadmin',
+                'j_password': 'jasperadmin',
+                'output': 'pdf',
+                'filter1': record.doc_name or ''
+            }
+            # Construct the full URL with query parameters
+            record.report_url = f"{base_url}?{urllib.parse.urlencode(params)}"
+
+    def action_generate_report_url(self):
+        """Public method to be called by the button."""
+        self._compute_report_url()
+        # Optionally return an action or response
+        return {
+            'type': 'ir.actions.act_url',
+            'url': self.report_url,
+            'target': 'new',  # Opens in a new tab
+        }
+        
+    """ End Generate Report  """    
 
     
     @api.model
@@ -195,19 +226,36 @@ class CertificateOfEmployment(models.Model):
                 record.work_flow = False
                 continue
 
-            employee_data = record.employee.read(['company_id'])[0]
-            company_id = employee_data.get('company_id', [False])[0]
+            # Get the company_id of the employee
+            company_id = record.employee.company_id.id if record.employee.company_id else False
             
-            # Search for an active workflow matching the company and module selection
-            workflows = self.env['workflow'].search(
-                [('company', '=', company_id), ('employee_category', '=', record.employee_category), ('is_active', '=', True), ('module_selection', '=', 'certificate_of_employment')],
+            if not company_id:
+                record.work_flow = False
+                continue
+
+            # Check if the company exists in the workflow companies table
+            company_exists = self.work_flow.companies_table.search_count([('company', '=', record.company_id.id)])
+
+            if company_exists <= 0:
+                record.work_flow = False
+                continue
+
+            # Search for an active workflow matching the criteria
+            workflow = self.env['workflow'].search(
+                [
+                    ('employee_category', '=', record.employee_category),
+                    ('is_active', '=', True),
+                    ('module_selection', '=', 'certificate_of_employment')
+                ],
                 limit=1
             )
-            record.work_flow = workflows.id if workflows else False
+
+            record.work_flow = workflow.id if workflow else False
+
     
     """ End of workflow setup """
     
-    @api.depends('type')
+    """  @api.depends('type')
     def _compute_certified_by(self):
         for record in self:
             if record.type:
@@ -221,7 +269,7 @@ class CertificateOfEmployment(models.Model):
                     _logger.info("No signatory found for certificate type %s", record.type)
                     record.certified_by = False
             else:
-                record.certified_by = False
+                record.certified_by = False """
 
     # Automate doc_name using ir.sequence
     @api.model
@@ -294,14 +342,11 @@ class CoeSignatories(models.Model):
     _name = 'coe.signatories'
     _description = 'Certificate of Employment Signatories'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-
-    #fields
-    certificate_type = fields.Selection(
-        selection=lambda self: self.env['certificate.of.employment'].get_type_selection(),
-        string='Certificate Type',
-        required=True,
-        tracking=True
-    )
-    signee = fields.Many2one('hr.employee' ,string='Signee', required=True, tracking=True)
+    _rec_name = "employee"
+    
+    employee = fields.Many2one('hr.employee', string="Employee", required=True)
+    
+    
+    
     
     

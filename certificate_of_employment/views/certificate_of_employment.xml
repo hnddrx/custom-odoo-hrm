@@ -5,12 +5,13 @@
         <field name="model">certificate.of.employment</field>
         <field name="arch" type="xml">
             <form string="Certificate of Employment" create="false">
+                
                 <header>
                     <div class="oe_header oe_background oe_padding">
                         <!-- Workflow and Approval Flow -->
                         <group class="oe_inline">
                             <!-- Hidden Fields -->
-                            <field name="work_flow" widget="many2one" placeholder="Select Workflow" invisible="1"/>
+                            <field name="work_flow" widget="many2one" placeholder="Select Workflow" invisible="0"/>
                             <field name="module_approval_flow" invisible="1">
                                 <tree editable="bottom">
                                     <field name="module_approver_name" 
@@ -86,7 +87,7 @@
                                 </div>
                                 <!-- Status Badge -->
                                 <div>
-                                    <!-- <button name="action_generate_report_url" 
+                                    <button name="action_generate_report_url" 
                                             invisible="current_docstatus != 2"
                                             type="object"
                                             help="Click here to print Certificate of Employment."
@@ -103,7 +104,7 @@
                                                 justify-content: center;">
                                         <span class="fa fa-file-pdf-o" style="font-size: 18px;"></span>
                                     </button>
-                                    -->
+                                   
                                     <field name="status" 
                                         widget="badge" 
                                         decoration-info="current_docstatus == 1" 
@@ -162,25 +163,27 @@
     </record>
 
     <!-- Tree View -->
-    <record id="certificate_of_employment_tree_view" model="ir.ui.view">
-        <field name="name">certificate.of.employment.tree</field>
-        <field name="model">certificate.of.employment</field>
-        <field name="arch" type="xml">
-            <tree string="Certificate of Employment">
-                <field name="doc_name" />
-                <field name="employee"/>
-                <field name="type"/>
+    <!-- Tree View -->
+<record id="certificate_of_employment_tree_view" model="ir.ui.view">
+    <field name="name">certificate.of.employment.tree</field>
+    <field name="model">certificate.of.employment</field>
+    <field name="arch" type="xml">
+        <tree string="Certificate of Employment">
+            <field name="doc_name" />
+            <field name="employee"/>
+            <field name="type"/>
 
-                <field name="status" widget="badge"
-                        decoration-info="current_docstatus == 1" 
-                        decoration-success="current_docstatus == 2"
-                        decoration-warning="current_docstatus == 3"
-                        decoration-danger="current_docstatus == 4"
-                />
-                <field name="current_docstatus"/>
-            </tree>
-        </field>
-    </record>
+            <field name="status" widget="badge"
+                   decoration-info="current_docstatus == 1"
+                   decoration-success="current_docstatus == 2"
+                   decoration-warning="current_docstatus == 3"
+                   decoration-danger="current_docstatus == 4"
+            />
+            <field name="current_docstatus" invisible="0"/>
+        </tree>
+    </field>
+</record>
+
 
     <!-- Kanban View -->
     <record id="certificate_of_employment_kanban_view" model="ir.ui.view">
@@ -223,4 +226,10 @@
         action="action_certificate_of_employment_tree" 
         sequence="10"
         web_icon="certificate_of_employment,static/src/desciption/diploma.png"/>
+
+    <menuitem id="signatories" 
+    name="Signatories" 
+    parent="menu_certificate_of_employment_child" 
+    action="action_coe_signatories_tree" 
+    sequence="20"/>
 </odoo>

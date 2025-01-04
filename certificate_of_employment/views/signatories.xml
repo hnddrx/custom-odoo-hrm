@@ -7,8 +7,8 @@
             <form string="Certificate of Employment Signatories" create="false">
                 <sheet>
                     <group>
-                        <field name='certificate_type'/>
-                        <field name='signee'/>
+                        <field name='employee'/>
+                   
                     </group>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>
@@ -26,8 +26,8 @@
         <field name="model">coe.signatories</field>
         <field name="arch" type="xml">
             <tree string="Certificate of Employment Signatories">
-                <field name="certificate_type" />
-                <field name="signee"/>
+                <field name="employee" />
+                
             </tree>
         </field>
     </record>

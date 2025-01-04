@@ -28,13 +28,13 @@
                         <page string="Offense and Sanction Details"> 
                         <group>
                             <group>
-                                <field name="offense" placeholder="Select Offense" widget="many2one"/>
+                                <field name="offense" placeholder="Select Offense" widget="many2one" height="90vh"/>
                                 <field name="offense_description"/>
                                 <field name="sanction" placeholder="Select Sanction" widget="many2one"/>
                                 <field name="description"/>
                             </group>
                             <group>
-                                <field name="next_sanction" widget="many2one"/>
+                                <field name="next_sanction" widget="many2one" placeholder="Select Next Offense"/>
                                 <field name="next_sanction_description"/>
                             </group>
                         </group>

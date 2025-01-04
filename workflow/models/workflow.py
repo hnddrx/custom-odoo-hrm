@@ -45,6 +45,13 @@ class Workflow(models.Model):
         'workflow_id',
         string='Approval Table'
     )
+    
+    companies_table = fields.One2many(
+        'multiple.companies',
+        'workflow_id',
+        string="Companies Table"
+    )
+    
     employee_category = fields.Selection(
         string="Employee Category", 
         selection=[
@@ -108,4 +115,20 @@ class Approvals(models.Model):
         for record in self:
             record.doc_status = record.sequence_status.doc_status or 0
 
+#Create tabler for company
+class MultipleCompanies(models.Model):
+    _name = "multiple.companies"
+    _description = "Multiple Companies"
+    
+    workflow_id = fields.Many2one(
+        'workflow',
+        string='Workflow',
+        required=True,
+        ondelete='cascade'
+    )
+    
+    company =  fields.Many2one('res.company', string="Company", required=True)
+    
+    
+    
 

@@ -28,7 +28,7 @@ class EmployeeClearance(models.Model):
     
     #Clearance Information
     reason_for_leaving = fields.Text(string="Reason for Leaving")
-    company_email = fields.Char(string="Company Email")
+    company_email = fields.Char(string="Company Email", readonly=True, compute='_compute_employee_info', store=True)
     remarks = fields.Text(string="Remarks")
     last_working_date = fields.Date(string="Last Working Date")
     effective_date = fields.Date(string="Effective Date")
@@ -62,7 +62,7 @@ class EmployeeClearance(models.Model):
 
 
     # Signee Information
-    conforme_employee_name = fields.Many2one('hr.employee', string='Conforme')
+    conforme_employee_name = fields.Many2one('hr.employee', string='Conforme', readonly=True)
     contact_number = fields.Char(string='Contact Number')
     signed_date = fields.Date(string='Signed Date', compute='_compute_signed_date', store=True)  # Date field instead of Char
 
@@ -137,14 +137,16 @@ class EmployeeClearance(models.Model):
                 record.employee_name = employee.s_full_name
                 record.department = employee.department_id.name
                 record.company = employee.company_id.name
-                record.company_email = employee.company_id.email
+                record.company_email = employee.s_corporate_email
                 record.position_title = employee.job_title
+                record.conforme_employee_name = employee
             else:
                 record.employee_name = ''
                 record.department = ''
                 record.company = ''
                 record.company_email = ''
                 record.position_title = ''
+                record.conforme_employee_name = ''
                 
 class DepartmentManager(models.Model):
     _name = 'department.manager'

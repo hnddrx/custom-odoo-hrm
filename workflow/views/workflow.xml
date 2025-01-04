@@ -35,6 +35,17 @@
                                 string="Company" 
                                 class="o_field_company"/>
 
+
+                            <field name="companies_table" widget="one2many_list">
+                                <tree editable="bottom" class="o_kanban_record">
+                                    <!-- Approver Email with auto-complete and more refined placeholder -->
+                                    <field name="company" 
+                                        placeholder="Select Company" 
+                                        options="{'no_create': True}" 
+                                        widget="many2one" />
+                                </tree>
+                            </field>
+
                         <!-- Job Level Selection -->
                         <field name="employee_category" widget="selection"/>
                             
@@ -111,6 +122,17 @@
         </field>
     </record>
 
+    <!-- Companies Tree View -->
+    <record id="view_multiple_companies_tree" model="ir.ui.view">
+        <field name="name">multiple.companies.tree</field>
+        <field name="model">multiple.companies</field>
+        <field name="arch" type="xml">
+            <tree string="Approvals Table">
+                <field name="company"/>
+            </tree>
+        </field>
+    </record>
+
     <!-- Workflow Tree View -->
     <record id="workflow_tree_view" model="ir.ui.view">
         <field name="name">workflow.tree</field>
@@ -134,7 +156,6 @@
             </tree>
         </field>
     </record>
-
 
     <!-- Action -->
     <record id="action_workflow" model="ir.actions.act_window">
