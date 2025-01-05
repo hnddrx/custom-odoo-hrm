@@ -218,7 +218,7 @@ class CertificateOfEmployment(models.Model):
             else:
                 _logger.warning(f"No approval table found for certificate {record.id}")
                 
-    @api.depends('employee')
+    @api.depends('employee')    
     def _get_workflow(self):
         """Compute and assign the appropriate workflow based on the employee's company."""
         for record in self:
@@ -226,50 +226,23 @@ class CertificateOfEmployment(models.Model):
                 record.work_flow = False
                 continue
 
-            # Get the company_id of the employee
-            company_id = record.employee.company_id.id if record.employee.company_id else False
-            
-            if not company_id:
-                record.work_flow = False
-                continue
-
-            # Check if the company exists in the workflow companies table
-            company_exists = self.work_flow.companies_table.search_count([('company', '=', record.company_id.id)])
-
-            if company_exists <= 0:
-                record.work_flow = False
-                continue
-
-            # Search for an active workflow matching the criteria
+            # Fetch the appropriate workflow based on conditions
             workflow = self.env['workflow'].search(
                 [
+                    ('companies_table.company', '=', record.company_id.id),  # Ensure 'record.company_id' references the correct field
                     ('employee_category', '=', record.employee_category),
                     ('is_active', '=', True),
-                    ('module_selection', '=', 'certificate_of_employment')
+                    ('module_selection', '=', 'certificate_of_employment'),
+                    ('action_flow', '=', 'sequential')
                 ],
                 limit=1
             )
 
+            # Assign workflow if found
             record.work_flow = workflow.id if workflow else False
 
-    
+
     """ End of workflow setup """
-    
-    """  @api.depends('type')
-    def _compute_certified_by(self):
-        for record in self:
-            if record.type:
-                signatory = self.env['coe.signatories'].search([
-                    ('certificate_type', '=', record.type)
-                ], limit=1)
-                
-                if signatory:
-                    record.certified_by = signatory.signee
-                else:
-                    _logger.info("No signatory found for certificate type %s", record.type)
-                    record.certified_by = False
-            else:
-                record.certified_by = False """
 
     # Automate doc_name using ir.sequence
     @api.model

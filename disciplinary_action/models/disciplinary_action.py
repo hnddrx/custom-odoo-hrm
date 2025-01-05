@@ -17,7 +17,6 @@ class DisciplinaryAction(models.Model):
     
     # Many2one relationship field
     incident_report = fields.Many2one('incident.report', string='Incident Report',required=True)
-    """  incident_report_description = fields.Text(string='Description', readonly=True) """
     
     sanction = fields.Many2one('sanction.lists', string='Sanction', required=True)
     description = fields.Char(string='Sanction Description', readonly=True, compute='_get_sanction', store=True)
@@ -45,17 +44,35 @@ class DisciplinaryAction(models.Model):
         string="Attachments", 
         help="Attachments related to this document"
     )
-
     
     #Text fields
     hearing_remarks = fields.Text(string='Hearing Remarks')
     remarks = fields.Text(string='Remarks')
     
+    """ Put needed workflow fields """
+    
+    """ End of workflow fild """
+    
+    """ put workflow logic here """
+
+    """ End of workflow """
+    
     @api.model
     def create(self, vals):
         """Generate document name sequence during creation."""
         if vals.get('doc_name', 'New') == 'New':
-            vals['doc_name'] = self.env['ir.sequence'].next_by_code('disciplinary.action') or 'New'
+                sequence_code = 'disciplinary.action'
+                company_id = self.env.company.id  # Current company
+                # Fetch the correct sequence for the current company
+                sequence = self.env['ir.sequence'].sudo().search([
+                    ('code', '=', sequence_code)
+                ], limit=1)
+                if sequence:
+                    vals['doc_name'] = sequence.next_by_id()
+                else:
+                    vals['doc_name'] = '/'  # Fallback if no sequence is found
+            
+            
         return super(DisciplinaryAction, self).create(vals)
 
     """   @api.depends('incident_report')
