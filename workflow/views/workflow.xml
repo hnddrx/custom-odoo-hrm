@@ -26,15 +26,6 @@
                                 options="{'no_create': True}" 
                                 widget="selection" />
 
-                            <!-- Company Selection -->
-                            <field name="company" 
-                                placeholder="Select Company" 
-                                required="1" 
-                                widget="many2one" 
-                                options="{'no_create': True}" 
-                                string="Company" 
-                                class="o_field_company"/>
-
 
                             <field name="companies_table" widget="one2many_list">
                                 <tree editable="bottom" class="o_kanban_record">
@@ -145,9 +136,6 @@
                 <!-- Module with enhanced icon display -->
                 <field name="module_selection" string="Module" widget="selection" options="{'no_create': True}"/>
 
-                <!-- Company Name with badge display for easy recognition -->
-                <field name="company" string="Company" widget="badge" options="{'color': 'primary'}"/>
-
                 <!-- Active Status with a toggle switch for better interactivity -->
                 <field name="is_active" widget="boolean_toggle" string="Active" class="o_tree_boolean_toggle"/>
 
@@ -169,7 +157,7 @@
         </field>
     </record>
 
-      <!-- Root Menu for Workflow Management -->
+    <!-- Root Menu for Workflow Management -->
         <menuitem id="menu_workflow_root" 
                   name="Workflow Management" 
                   sequence="5"/>

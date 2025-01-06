@@ -13,14 +13,13 @@
         'resource',
         'web',
         'mail', 
-        'workflow',
+        'workflow'
         ],
     'data': [
         'security/ir.model.access.csv',
         'views/signatories.xml',
         'views/certificate_of_employment.xml',
         'data/certificate_of_employment.xml',
-        
     ], 
     "assets":{
         "web.assets_backend":[

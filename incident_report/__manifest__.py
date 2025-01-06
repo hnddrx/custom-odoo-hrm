@@ -2,7 +2,7 @@
     'name': "Incident Report",
     'version': '1.0',
     'author': "Wren",
-    "depends" : ['base', 'web','hr', 'offense_list', 'disciplinary_action', 'sanction_list','workflow'],
+    "depends" : ['base', 'web','hr', 'offense_list', 'sanction_list'],
     'category': 'Employee Records',
     'description': """
     Description text

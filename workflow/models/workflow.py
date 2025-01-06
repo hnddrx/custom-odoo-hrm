@@ -22,14 +22,9 @@ class Workflow(models.Model):
         required=True,
         tracking=True
     )
-    company = fields.Many2one(
-        'res.company',
-        string="Company",
-        required=True,
-        tracking=True,
-    )
     
-    
+    #?? Remove this field, it is not necessary to have this 
+    # Conclusion: if we have multiple approval levels that makes the workflow sequential and if we want to make it parallel we simply put the sequence number into 1. why? E.g., 5 approvers same sequence number either of them can approve
     action_flow = fields.Selection(
         selection=[('parallel', 'Parallel'), ('sequential', 'Sequential')],
         string="Action Flow",
@@ -43,7 +38,7 @@ class Workflow(models.Model):
     approvals_table = fields.One2many(
         'approvals',
         'workflow_id',
-        string='Approval Table'
+        string='Approval Table'  
     )
     
     companies_table = fields.One2many(

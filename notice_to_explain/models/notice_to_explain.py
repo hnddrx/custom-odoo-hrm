@@ -13,10 +13,15 @@ class NoticeToExplain(models.Model):
     _rec_name = 'doc_name'
 
     doc_name = fields.Char(string="Name", readonly=True, default='New')
+    
+    #Multiple selection of incident report table based
+    incident_report_table = fields.One2many(
+        'multiple.incident.report',
+        'notice_id',
 
-    # Many2many relationship field for incident reports
-    incident_report = fields.Many2one('incident.report', string='Incident Report')
-
+    )
+    
+    
     # Many2one relationship field for the employee
     employee = fields.Many2one('hr.employee', string='Employee', required=True)
 
@@ -239,7 +244,7 @@ class NoticeToExplain(models.Model):
 
             # Search for an active workflow matching the company and module selection
             workflow = self.env['workflow'].search(
-                [('employee_category', '=', record.employee_category),('company', '=', company_id), ('is_active', '=', True), ('module_selection', '=', 'notice_to_explain')],
+                [('employee_category', '=', record.employee_category),('companies_table.company', '=', record.employee.company_id.id), ('is_active', '=', True), ('module_selection', '=', 'notice_to_explain')],
                 limit=1
             )
 
@@ -319,3 +324,15 @@ class NoticeApprovalFlow(models.Model):
     module_doc_status = fields.Integer(string="Docstatus", store=True)
     module_approval_date =  fields.Datetime(string="Approved On")
     module_approval_confirmed = fields.Boolean(string='Confirmed Approval', store=True)    
+
+
+""" Get multiple Incident Report """
+class MultipleIncidentReport(models.Model):
+    _name = 'multiple.incident.report'
+    _description = 'Multiple Incident Reprot'
+    
+    notice_id = fields.Many2one(
+        'notice.to.explain',
+        string='Notice to explain'
+    )
+    incident_report = fields.Many2one('incident.report', string='Incident Report', required=True)

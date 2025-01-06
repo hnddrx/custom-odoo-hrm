@@ -225,15 +225,14 @@ class CertificateOfEmployment(models.Model):
             if not record.employee:
                 record.work_flow = False
                 continue
-
+            
             # Fetch the appropriate workflow based on conditions
             workflow = self.env['workflow'].search(
                 [
                     ('companies_table.company', '=', record.company_id.id),  # Ensure 'record.company_id' references the correct field
                     ('employee_category', '=', record.employee_category),
                     ('is_active', '=', True),
-                    ('module_selection', '=', 'certificate_of_employment'),
-                    ('action_flow', '=', 'sequential')
+                    ('module_selection', '=', 'certificate_of_employment')
                 ],
                 limit=1
             )

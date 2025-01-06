@@ -12,6 +12,7 @@
         'web',
         'mail', 
         'advanced_employee_manager',
+        'incident_report',
         'sanction_list',
         'offense_list'
     ],
