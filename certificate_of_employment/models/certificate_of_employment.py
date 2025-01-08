@@ -301,6 +301,7 @@ class ModuleApprovalFlow(models.Model):
         string='Certificate of Employment',
         ondelete='cascade'
     )
+    
     module_approver_name = fields.Many2one('res.users', string='Approver Name', store=True)
     module_approver_email = fields.Char(string='Approver Email', store=True)
     module_approval_status = fields.Char(string='Approval Status', store=True)
