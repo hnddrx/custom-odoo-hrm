@@ -146,7 +146,9 @@
     <!-- Root Menu for Workflow Management -->
         <menuitem id="menu_workflow_root" 
                   name="Workflow Management" 
-                  sequence="5"/>
+                  sequence="5"
+                  web_icon="workflow,static/process.png"
+                  />
         
         <!-- Child Menu for Workflow -->
         <menuitem id="menu_workflow_child" 
