@@ -53,11 +53,31 @@ class EmployeeClearance(models.Model):
         string='Authorized',
     )
     
+    dept_field = fields.One2many(
+        'department.manager',
+        'clearance_id',  # Corrected reverse relation field
+        string='Dept Field',
+    )
+    
     human_resource_ids = fields.One2many(
         'human.resources',
         'clearance_id',  # Corrected reverse relation field
         string='Authorized',
         copy=True
+    )
+    
+    department_manager = fields.One2many(
+        'employee.clearance.table',
+        'clearance_id',  # Corrected reverse relation field
+        string='Department Manager',
+        domain=[('parent_field', '=' , 'departmnent_manager')]
+    )
+    
+    human_resources = fields.One2many(
+        'employee.clearance.table',
+        'clearance_id',  # Corrected reverse relation field
+        string='Human Resources',
+        domain=[('parent_field', '=' , 'human_resources')]
     )
 
 
@@ -147,6 +167,61 @@ class EmployeeClearance(models.Model):
                 record.company_email = ''
                 record.position_title = ''
                 record.conforme_employee_name = ''
+                
+                
+                
+""" Child Table """
+
+class DepartmentManager(models.Model):
+    _name = 'employee.clearance.table'
+    _description = 'Employee Clearance Table'
+
+    # Link back to the clearance record
+    clearance_id = fields.Many2one(
+        'employee.clearance', 
+        string="Clearance", 
+        required=True, 
+        ondelete='cascade'
+    )    
+    
+    parent_field = fields.Selection(['department_manager', 'human_resource'], string="Parent Field")
+
+    # Clearance Details
+    authorized = fields.Many2one(
+        'res.users', 
+        string='Authorized', 
+        compute="_compute_authorized", 
+        store=False,  # Remove if not needed to store in DB
+    )
+    
+    status = fields.Selection(
+        selection=[
+            ('cleared', 'Cleared'), 
+            ('not-cleared', 'Not Cleared')
+        ], 
+        string="Status"
+    )
+    remarks = fields.Text(string='Remarks')
+    date = fields.Date(string="Date", compute="_compute_authorized", store=False)
+
+    accountability = fields.Selection(
+        string="Accountability",
+        selection=[('job_turn_over','Job turn-over Checklist')],
+        help="Automatically populated based on the selected department"
+    )
+    
+    @api.depends('status')
+    def _compute_authorized(self):
+        for record in self:
+            if record.status == 'cleared':
+                record.authorized = self.env.user
+                record.date = fields.Date.context_today(self)
+            else:
+                record.authorized = False
+                record.date = False
+
+""" End of child Table """                
+                
                 
 class DepartmentManager(models.Model):
     _name = 'department.manager'

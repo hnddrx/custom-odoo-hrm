@@ -122,16 +122,16 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="incident_report_table" invisible="0">
+                            <field name="employee" widget="many2one_tag" domain="[]" />
+                            <field name="incident_report_table" invisible="not employee">
                                 <tree editable="bottom">
                                     <field name="incident_report" 
                                         widget="many2one" 
                                         options="{'no_create': True}" 
-                                        string="IR Code"
+                                        string="Code"
                                         placeholder="Select Incident Report" />
                                 </tree>
                             </field>
-                            <field name="employee" widget="many2one_tag"/>
                             <field name="employee_name"/>
                             <field name="employee_category" readonly="1"/>
                             

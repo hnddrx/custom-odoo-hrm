@@ -10,8 +10,7 @@
         'base_setup',
         'resource',
         'web',
-        'mail', 
-        'advanced_employee_manager',
+        'mail',  
         'sanction_list',
         'incident_report'
     ],

@@ -72,27 +72,31 @@
                 <!-- NOTEBOOK SECTION -->
                 <notebook>
                     <page string="Department Manager" invisible="clearance_type != 'Resignation'">
-                        <field name="authorize_ids">
+                        <field name="department_maanger">
                             <tree editable="bottom">
                                 <field name="status" />
                                 <field name="authorized"/>
                                 <field name="accountability" widget="selection"/>
                                 <field name="date"/>
                                 <field name="remarks"/>
+                                <field name="parent_field" invisible="1" context="{'default_parent_field': 'department_manager'}"/>
                             </tree>
                         </field>
                     </page>
+
                     <page string="Human Resources" invisible="clearance_type != 'Resignation'">
-                        <field name="human_resource_ids">
+                        <field name="human_resources">
                             <tree editable="bottom">
                                 <field name="status" />
                                 <field name="authorized"/>
                                 <field name="accountability" widget="selection"/>
                                 <field name="date"/>
                                 <field name="remarks"/>
+                                <field name="parent_field" invisible="1" context="{'default_parent_field': 'human_resources'}"/>
                             </tree>
                         </field>
                     </page>
+                    
                 </notebook>
                 <separator string="Consent to Settle Outstanding Obligations" colspan="4"/>
                 <group>

@@ -21,9 +21,13 @@ class NoticeToExplain(models.Model):
 
     )
     
-    
-    # Many2one relationship field for the employee
-    employee = fields.Many2one('hr.employee', string='Employee', required=True)
+    #   domain=[('parent_field', '=' , 'departmnent_manager')]
+    employee = fields.Many2one(
+        'hr.employee', 
+        string='Employee', 
+        required=True, 
+        domain=lambda self: self._get_employee_domain()
+    )
 
     employee_name = fields.Char(string='Employee Name', readonly=True, compute='_compute_employee_name', store=True)
     employee_category = fields.Char(string="Employee Category", store=True)
@@ -59,8 +63,41 @@ class NoticeToExplain(models.Model):
         'notice_id',
         string='Module Approval Flow'
     )
+        
+    @api.model
+    def _get_employee_domain(self):
+        """Dynamically filter employees based on a raw SQL query."""
+        
+        # Prepare the raw SQL query
+        query = """
+            SELECT he.id
+            FROM hr_employee he
+            INNER JOIN involved_employees ie 
+            ON he.id = ie.employee
+            GROUP BY he.id
+        """
+        
+        # Execute the query (no parameters needed in this case)
+        self.env.cr.execute(query)
+        
+        # Fetch the result and extract the employee ids
+        employee_ids = [row[0] for row in self.env.cr.fetchall()]
+        _logger.info(employee_ids)
+        
+        # If no employees are found, return an empty domain
+        if not employee_ids:
+            _logger.info("Employee IDS")
+            return [('id', '=', False)]
+        
+        # Return the domain filter using the retrieved employee ids
+        return [('id', 'in', employee_ids)]
+
+
+            
     
     """ Generate jasper report """
+
+            
     
     def _compute_report_url(self):
         """Private method to compute the report URL."""

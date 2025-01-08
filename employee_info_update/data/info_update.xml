@@ -1,0 +1,11 @@
+<odoo>
+    <data noupdate="1">
+        <record id="seq_update_info" model="ir.sequence">
+            <field name="name">Employee Info Update Sequence</field>
+            <field name="code">update.info</field>
+            <field name="prefix">EIU</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+        </record>
+    </data>
+</odoo>

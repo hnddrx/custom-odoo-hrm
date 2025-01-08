@@ -18,45 +18,33 @@
                                 class="o_field_doc_name" 
                                 options="{'no_create': True}" />
 
-                            <!-- Module Selection -->
-                            <field name="module_selection" 
-                                placeholder="Select Module" 
-                                string="Module" 
-                                class="o_field_module" 
-                                options="{'no_create': True}" 
-                                widget="selection" />
-
-
-                            <field name="companies_table" widget="one2many_list">
-                                <tree editable="bottom" class="o_kanban_record">
-                                    <!-- Approver Email with auto-complete and more refined placeholder -->
-                                    <field name="company" 
-                                        placeholder="Select Company" 
-                                        options="{'no_create': True}" 
-                                        widget="many2one" />
+                            <field name="companies_table" widget="one2many_list" nolabel="1" colspan="2" >
+                                <tree editable="bottom">
+                                    <field name="company" string="Companies Table"  placeholder="Select Company" options="{'no_create': True}" widget="many2one" />
                                 </tree>
                             </field>
-
-                        <!-- Job Level Selection -->
-                        <field name="employee_category" widget="selection"/>
                             
                         </group>
 
                         <!-- Action Flow and Active Status -->
                         <group>
-                            <!-- Action Flow -->
-                            <field name="action_flow" 
-                                string="Action Flow" 
-                                placeholder="Choose Action Flow" 
-                                class="o_field_action_flow"
-                                widget="selection" />
+                            <field name="module_selection" 
+                                placeholder="Select Module" 
+                                string="Module" 
+                                class="o_field_module" 
+                                options="{'no_create': True}" 
+                                widget="selection"
+                                help="Please select a module for the workflow."
+                                />
+                            
+                            <field name="employee_category" widget="selection" help="This field represents the employee category, indicating that the workflow is specifically designed for the selected category."/>
 
-                            <!-- Active Status Toggle -->
                             <field name="is_active" 
                                 widget="boolean_toggle" 
                                 string="Active" 
                                 class="o_field_active_toggle"
                                 />
+
                         </group>
                     </group>
 
@@ -136,11 +124,9 @@
                 <!-- Module with enhanced icon display -->
                 <field name="module_selection" string="Module" widget="selection" options="{'no_create': True}"/>
 
+                <field name="employee_category" string="Employee Categroy" widget="badge" options="{'no_create': True}"/>
                 <!-- Active Status with a toggle switch for better interactivity -->
                 <field name="is_active" widget="boolean_toggle" string="Active" class="o_tree_boolean_toggle"/>
-
-                <!-- Action Flow with icons and tooltip for better clarity -->
-                <field name="action_flow"/>
             </tree>
         </field>
     </record>

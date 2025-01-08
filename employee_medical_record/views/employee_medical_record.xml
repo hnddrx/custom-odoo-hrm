@@ -12,6 +12,7 @@
                             <field name="employee" options="{'no_create_edit': True}"/>
                             <field name="first_name" />
                             <field name="last_name" />
+                            <field name="gender" />
                             <field name="company" />
                         </group>
                         <group>
@@ -29,12 +30,96 @@
                                 <field name="to_date"/>
                             </group>
                         </page>
+
                         <page string="Remarks">
                             <group>
                                 <field name="existing_condition"/>
                                 <field name="other_remarks"/>
                             </group>
                         </page>
+                        
+                        <page string="Medical Examinations">
+                            <group>
+                                <field name="separation" widget="selection"/>
+                            </group>
+                            <group>
+                                <field name="special" widget="selection"/>
+                            </group>
+                            <group>
+                                <field name="transfer" widget="selection"/>
+                            </group>
+                            <group>
+                                <field name="pre_placement" widget="selection"/>
+                            </group>
+                            <group>
+                                <field name="return_to_work" widget="selection"/>
+                            </group>
+                            <group>
+                                <field name="periodic" widget="selection"/>
+                            </group>
+                        </page>
+
+
+                        <page string="Diseases">
+                            <group>
+                                <field name="diseases_skin" widget="selection"/>
+                            </group>
+
+                            <group>
+                                <field name="diseases_head" widget="selection"/>
+                            </group>
+
+                            <group>
+                                <field name="diseases_eyes" widget="selection"/>
+                            </group>
+
+                            <group>
+                                <field name="mouth_ent_condition" widget="selection"/>
+                            </group>
+
+                            <group>
+                                <field name="respiratory_condition" widget="selection"/>
+                            </group>
+
+                            <group>
+                                <field name="heart_blood_vessel_condition" widget="selection"/>
+                            </group>
+
+                            <group>
+                                <field name="gastrointestinal_condition" widget="selection"/>
+                            </group>
+
+                            <group>
+                                <field name="genito_urinary_condition" widget="selection"/>
+                            </group>
+                            
+                            <group>
+                                <field name="reproductive_condition" widget="selection"/>
+                            </group>
+                        </page>
+
+                        <page string="Program">
+                            <group>
+                                <field name="immunization_program" widget="selection"/>
+                            </group>
+                        </page>
+
+                        <page string="Hazard in Workplace">
+                            <group>
+                                <field name="chemical_hazard" widget="selection"/>
+                            </group>
+                            <group>
+                                <field name="physical_hazards" widget="selection"/>
+                            </group>
+                            <group>
+                                <field name="biological_hazard" widget="selection"/>
+                            </group>
+                            <group>
+                                <field name="ergonomic_stress" widget="selection"/>
+                            </group>
+                            
+                        </page>
+
                     </notebook>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>
@@ -77,6 +162,4 @@
               action="action_employee_medical_record"
               sequence="10"
               web_icon="employee_medical_record,static/diagnosis.png"/>
-
-  
 </odoo>

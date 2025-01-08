@@ -6,37 +6,93 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <!-- Uncomment to add a save button -->
-                    <!-- <button name="action_save" string="Save" type="object" class="btn-primary"/> -->
-                    <!-- <button name="print_report" type="object" string="Print" class="btn btn-primary"/> -->
-                     <!-- 
-                     <field name="user_id" invisible="1"/>
-                     <field name="current_user_id" invisible="1"/>
-                     <field name="current_user_in_stage_ids" invisible="1"/>
-                     <field name="is_approver" invisible="1"/>
-                     <field name="current_stage_id" invisible="1"/>
-                     <field name="company_id" invisible="1"/>
-                     <field name="employee_info_id" invisible="1"/> -->
-                     
-                     
-                    <button string="Submit" name="action_confirm" type="object" class="oe_highlight"/>
+                    <div class="oe_header oe_background oe_padding">
+                        <!-- Workflow and Approval Flow -->
+                        <group class="oe_inline">
+                            <!-- Hidden Fields -->
+                            <field name="work_flow" widget="many2one" placeholder="Select Workflow" invisible="1"/>
+                            <field name="module_approval_flow" invisible="1">
+                                <tree editable="bottom">
+                                    <field name="module_approver_name" 
+                                        widget="many2one" 
+                                        options="{'no_create': True}" 
+                                        placeholder="Approver Name" />
+                                    <field name="module_approver_email" 
+                                        widget="email" 
+                                        placeholder="Approver Email" />
+                                    <field name="module_approval_status" 
+                                        placeholder="Approval Status"/>
+                                    <field name="module_doc_status" />
+                                    <field name="module_approval_sequence" 
+                                        placeholder="Approval Sequence"/>
+                                    <field name="module_approval_date" 
+                                        widget="datetime" 
+                                        placeholder="Approval Date"/>w
+                                    <field name="module_approval_confirmed" 
+                                        widget="boolean"/>
+                                </tree>
+                            </field>
+                            <field name="can_approve" invisible="1"/>
+                            <field name="can_reject" invisible="1"/>
+                            <field name="can_cancel" invisible="1"/>
+                            <field name="current_sequence" invisible="1"/>
+                            <field name="current_docstatus" invisible="1" />  
+                        </group>
+                        
+                        <!-- Action Buttons and Status -->
+                        <div style="width: 100%;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <!-- Submit and Approve Buttons -->
+                                <div style="display: flex; gap: 10px;">
+                                    <button name="action_submit" 
+                                            string="Submit" 
+                                            type="object" 
+                                            class="oe_highlight" 
+                                            icon="fa-paper-plane" 
+                                            invisible="status != 'Draft'" 
+                                            style="padding: 8px 16px; font-size: 14px; border-radius: 4px;"/>
+                                    
+                                    <button name="action_approve" 
+                                            string="Approve" 
+                                            type="object" 
+                                            class="oe_highlight" 
+                                            icon="fa-check-circle" 
+                                            invisible="not can_approve or current_docstatus not in (1, 2)"
+                                            style="padding: 8px 16px; font-size: 14px; border-radius: 4px;"/>
 
-                    <!-- <button string="Approve" name="action_approved_movement" type="object" class="oe_highlight"
-                            invisible="is_approver == True or current_user_id in current_user_in_stage_ids" context="{'button_action': True}"/>
-                    
+                                    <button name="action_reject"
+                                            string="Reject"
+                                            type="object"
+                                            class="btn btn-warning btn-sm"
+                                            icon="fa-times-circle"
+                                            invisible="not can_reject or status == 'Rejected'"
+                                            style="font-size: 14px; border-radius: 4px; padding: 6px 12px;"/>
 
-                    <field name="status" widget="badge" invisible="1" decoration-info="status == 'submitted'"
-                        decoration-warning="status == 'reject'" decoration-success="status == 'approved'"/>
-                    <field name="current_stage_id" widget="statusbar"
-                        domain="[('approval_flow_id', '!=', False), ('approval_flow_id', '=', employee_info_id),('company_id', '=', company_id)]"
-                        groups="advanced_movement.group_user"/> -->
+                                    <button name="action_cancel"
+                                            string="Cancel"
+                                            type="object"
+                                            class="btn btn-danger btn-sm"
+                                            icon="fa-times-circle"
+                                            invisible="not can_cancel or status == 'Cancelled'"
+                                            style="font-size: 14px; border-radius: 4px; padding: 6px 12px;"/>
+
+                                </div>
+
+                                <!-- Status Badge -->
+                                <div>
+                                    <field name="status" 
+                                        widget="badge" 
+                                        decoration-info="current_docstatus == 1" 
+                                        decoration-success="current_docstatus == 2"
+                                        decoration-warning="current_docstatus == 3"
+                                        decoration-danger="current_docstatus == 4"
+                                        style="font-size: 14px; font-weight: bold; padding: 6px 12px; border-radius: 4px;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </header>
                 <sheet>
-                    <group>
-                        <field name="status" string="Request Status" widget="badge" invisible="1"
-                               decoration-info="status == 'submitted'"
-                               decoration-warning="status == 'reject'" decoration-success="status == 'approved'"/>
-                    </group>
                     <group name="default_view">
                         <group name="default_view_left">
                             <field name="employee_id"/>
@@ -49,7 +105,7 @@
                     <group>
                         <field name="reason"/>
                     </group>
-                    <field name="update_detail" readonly="status != 'draft'">
+                    <field name="update_detail" readonly="current_docstatus in [1,2,3,4,5]">
                         <tree string="Update Detail" editable="bottom">
                             <field name="field_id" required="True"/>
                             <field name="old_value" readonly="True" force_save="True"/>
@@ -82,9 +138,22 @@
         <field name="view_mode">tree,form</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
-                Create new Employee Info Update.
+                Use this interface to log and manage all information update records. Click "New" to create a new entry.
             </p>
         </field>        
+    </record>
+
+
+    <!-- Module Approval Flow Tree View -->
+    <record id="view_module_approval_flow_tree" model="ir.ui.view">
+        <field name="name">update.approval.flow.tree</field>
+        <field name="model">update.approval.flow</field>
+        <field name="arch" type="xml">
+            <tree string="Module Approval Flow">
+                <field name="module_approver_name"/>
+                <field name="module_approval_status"/>
+            </tree>
+        </field>
     </record>
 
     <menuitem
@@ -94,10 +163,4 @@
         sequence="25"
         web_icon="employee_info_update,static/src/description/updated.png"/>
 
-                  
-        <menuitem id="approval_flow_allocation_menu_update_info"
-                  name="Approval Flow"
-                  action="custom_approval_flow.action_approval_allocation_flow"
-                  parent="employee_info_update.menu_update_info_action"
-                  sequence="20"/>
 </odoo>

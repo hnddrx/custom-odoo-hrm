@@ -12,14 +12,11 @@
     'depends': [
         'base',
         'hr',
-        'advanced_employee_manager',
-        'advanced_movement',
-        'custom_approval_flow'
-
+        'workflow'
     ],
     'data': [
+        'data/info_update.xml',
         'security/ir.model.access.csv',
-        'views/approval_flow_views.xml',
         'views/update_info_view.xml',
     ],
     'installable': True,

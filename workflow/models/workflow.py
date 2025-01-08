@@ -29,8 +29,11 @@ class Workflow(models.Model):
         selection=[('parallel', 'Parallel'), ('sequential', 'Sequential')],
         string="Action Flow",
         required=True,
-        tracking=True
+        tracking=True,
+        default='sequential'
+        
     )
+    
     is_active = fields.Boolean(
         string="Is Active", 
         default=True,
@@ -55,7 +58,8 @@ class Workflow(models.Model):
             ('crew', 'CREW'),
             ('driver/helper/maintenance', 'DRIVER/HELPER/MAINTENANCE'),
             ('production', 'PRODUCTION')
-        ]
+        ],
+        required=True
     )
     
     @api.model
